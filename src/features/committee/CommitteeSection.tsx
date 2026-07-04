@@ -30,7 +30,7 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
 
   // ---- Role checks for what this user is allowed to do ----
   const isMentorOwner = user?.role === 'MENTOR' && thesis.mentorId === user.id
-  const isAdmin       = user?.role === 'ADMIN'
+  const isAdmin       = user?.role === 'STUDENT_SERVICE'
   // Is this user one of the committee members for this thesis?
   const myMembership  = members.find((m) => m.professorId === user?.id)
 

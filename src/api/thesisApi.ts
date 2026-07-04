@@ -4,6 +4,7 @@ import type {
   Thesis,
   CreateThesisRequest,
   ThesisStatusHistory,
+  MentorDecision,
 } from '@/types/api'
 
 /**
@@ -33,6 +34,18 @@ export const thesisApi = {
     return res.data.data
   },
 
+  // GET /api/theses/by-registration-number/{number}
+  findByRegistrationNumber: async (number: string): Promise<Thesis> => {
+    const res = await api.get<ApiResponse<Thesis>>(`/theses/by-registration-number/${encodeURIComponent(number)}`)
+    return res.data.data
+  },
+
+  // GET /api/theses/{id}/application-pdf — returns the PDF as a Blob
+  downloadApplicationPdf: async (id: string): Promise<Blob> => {
+    const res = await api.get(`/theses/${id}/application-pdf`, { responseType: 'blob' })
+    return res.data
+  },
+
   // GET /api/theses/{id}/history
   getHistory: async (id: string): Promise<ThesisStatusHistory[]> => {
     const res = await api.get<ApiResponse<ThesisStatusHistory[]>>(`/theses/${id}/history`)
@@ -52,8 +65,14 @@ export const thesisApi = {
   },
 
   // PATCH /api/theses/{id}/mentor-decision
-  decideMentorRequest: async (id: string, accepted: boolean, mentorComment?: string): Promise<Thesis> => {
-    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/mentor-decision`, { accepted, mentorComment })
+  decideMentorRequest: async (id: string, decision: MentorDecision, mentorComment?: string): Promise<Thesis> => {
+    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/mentor-decision`, { decision, mentorComment })
+    return res.data.data
+  },
+
+  // PATCH /api/theses/{id}/revise-proposal
+  reviseProposal: async (id: string, title: string, studentComment?: string): Promise<Thesis> => {
+    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/revise-proposal`, { title, studentComment })
     return res.data.data
   },
 
@@ -63,9 +82,15 @@ export const thesisApi = {
     return res.data.data
   },
 
-  // PATCH /api/theses/{id}/validate
-  validateApplication: async (id: string): Promise<Thesis> => {
-    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/validate`)
+  // PATCH /api/theses/{id}/archive-validate
+  archiveValidate: async (id: string, approved: boolean, comment?: string): Promise<Thesis> => {
+    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/archive-validate`, { approved, comment })
+    return res.data.data
+  },
+
+  // PATCH /api/theses/{id}/service-validate
+  serviceValidate: async (id: string, approved: boolean, comment?: string): Promise<Thesis> => {
+    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/service-validate`, { approved, comment })
     return res.data.data
   },
 

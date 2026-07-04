@@ -13,10 +13,10 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
-  { to: '/theses',        title: 'View Theses',          description: 'See all your theses and their current status', icon: FileText, roles: ['STUDENT', 'MENTOR', 'ADMIN', 'ARCHIVE'] },
-  { to: '/notifications', title: 'Notifications',        description: 'Recent system notifications',                  icon: Bell,     roles: ['STUDENT', 'MENTOR', 'ADMIN', 'COMMITTEE', 'ARCHIVE'] },
-  { to: '/committee',     title: 'Committee Management', description: 'Review thesis defense committees',             icon: Users,    roles: ['MENTOR', 'ADMIN', 'COMMITTEE'] },
-  { to: '/defenses',      title: 'Defense Scheduling',   description: 'Schedule, cancel or attend a defense',         icon: Calendar, roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'ADMIN'] },
+  { to: '/theses',        title: 'View Theses',          description: 'See all your theses and their current status', icon: FileText, roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'ARCHIVE'] },
+  { to: '/notifications', title: 'Notifications',        description: 'Recent system notifications',                  icon: Bell,     roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
+  { to: '/committee',     title: 'Committee Management', description: 'Review thesis defense committees',             icon: Users,    roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
+  { to: '/defenses',      title: 'Defense Scheduling',   description: 'Schedule, cancel or attend a defense',         icon: Calendar, roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
 ]
 
 export function DashboardPage() {

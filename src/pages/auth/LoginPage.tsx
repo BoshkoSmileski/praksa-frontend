@@ -97,7 +97,7 @@ export function LoginPage() {
         <ul className="space-y-0.5 font-mono text-[11px]">
           <li>student@test.com</li>
           <li>mentor@test.com</li>
-          <li>admin@test.com</li>
+          <li>service@test.com</li>
         </ul>
       </div>
     </div>

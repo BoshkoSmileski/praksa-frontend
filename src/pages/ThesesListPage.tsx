@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FileText, Plus, ArrowRight, User } from 'lucide-react'
+import { FileText, Plus, ArrowRight, User, Hash, Search, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { thesisApi } from '@/api/thesisApi'
 import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -13,11 +14,11 @@ import type { Thesis } from '@/types/api'
 export function ThesesListPage() {
   const [theses, setTheses] = useState<Thesis[]>([])
   const [loading, setLoading] = useState(true)
+  // Client-side text filter applied to title + registration number
+  const [filter, setFilter] = useState('')
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
 
-  // Standard data-fetching pattern with useEffect.
-  // (We could extract this into a useTheses() hook later — for one call it's not worth it yet.)
   useEffect(() => {
     thesisApi
       .getMy()
@@ -29,17 +30,47 @@ export function ThesesListPage() {
   }, [])
 
   const canCreate = user?.role === 'STUDENT'
+  const isArchive = user?.role === 'ARCHIVE'
+
+  // Direct lookup by registration number — useful for archive users who paste a known number.
+  // If found, navigate straight to detail. Falls back to client-side filter otherwise.
+  const handleRegistrationSearch = async (e: FormEvent) => {
+    e.preventDefault()
+    const q = filter.trim()
+    if (!q) return
+    // Only attempt exact lookup if the input looks like a registration number
+    if (/^DT-\d{4}-\d+$/i.test(q)) {
+      try {
+        const found = await thesisApi.findByRegistrationNumber(q.toUpperCase())
+        navigate(`/theses/${found.id}`)
+        return
+      } catch {
+        toast.error(`No thesis found with registration number ${q}`)
+      }
+    }
+    // For anything else we just rely on the client-side filter below
+  }
+
+  // Client-side filtering — matches title or registration number (case-insensitive)
+  const visible = filter.trim()
+    ? theses.filter((t) => {
+        const q = filter.trim().toLowerCase()
+        return (
+          t.title.toLowerCase().includes(q) ||
+          (t.archiveRegistrationNumber?.toLowerCase().includes(q) ?? false)
+        )
+      })
+    : theses
 
   return (
     <div>
       <PageHeader
         title="Theses"
         description={
-          user?.role === 'STUDENT'
-            ? 'Your thesis applications'
-            : user?.role === 'MENTOR'
-            ? 'Theses assigned to you'
-            : 'All theses in the system'
+          user?.role === 'STUDENT' ? 'Your thesis applications'
+          : user?.role === 'MENTOR' ? 'Theses assigned to you'
+          : user?.role === 'ARCHIVE' ? 'Theses awaiting validation and archived records'
+          : 'All theses in the system'
         }
         action={
           canCreate && (
@@ -51,20 +82,50 @@ export function ThesesListPage() {
         }
       />
 
+      {/* Search bar — visible for everyone but particularly useful for ARCHIVE role */}
+      {(isArchive || theses.length > 5) && (
+        <form onSubmit={handleRegistrationSearch} className="card p-3 mb-4 flex items-center gap-2">
+          <Search className="h-4 w-4 text-gray-400 ml-1 shrink-0" />
+          <input
+            type="text"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder={
+              isArchive
+                ? 'Search by registration number (DT-2026-0001) or title...'
+                : 'Filter by title or registration number...'
+            }
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
+          />
+          {filter && (
+            <button
+              type="button"
+              onClick={() => setFilter('')}
+              className="rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              title="Clear"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </form>
+      )}
+
       {loading ? (
         <LoadingList />
-      ) : theses.length === 0 ? (
+      ) : visible.length === 0 ? (
         <div className="card">
           <EmptyState
             icon={<FileText className="h-8 w-8" />}
-            title="No theses yet"
+            title={filter ? 'No theses match your filter' : 'No theses yet'}
             description={
-              canCreate
+              filter
+                ? 'Try a different search term.'
+                : canCreate
                 ? 'Start your thesis journey by creating your first application.'
                 : 'No theses are currently visible to you.'
             }
             action={
-              canCreate && (
+              canCreate && !filter && (
                 <button onClick={() => navigate('/theses/new')} className="btn-primary">
                   <Plus className="h-4 w-4" />
                   Create Thesis
@@ -75,7 +136,7 @@ export function ThesesListPage() {
         </div>
       ) : (
         <div className="grid gap-3">
-          {theses.map((thesis) => (
+          {visible.map((thesis) => (
             <ThesisCard key={thesis.id} thesis={thesis} />
           ))}
         </div>
@@ -85,7 +146,7 @@ export function ThesesListPage() {
 }
 
 // ────────────────────────────────────────────────────────────────
-// Sub-components — declared after the main one keeps the file readable
+// Sub-components
 // ────────────────────────────────────────────────────────────────
 
 function ThesisCard({ thesis }: { thesis: Thesis }) {
@@ -96,8 +157,15 @@ function ThesisCard({ thesis }: { thesis: Thesis }) {
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <StatusBadge status={thesis.status} />
+            {/* Registration number badge — only present once archived */}
+            {thesis.archiveRegistrationNumber && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-mono font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:ring-emerald-900">
+                <Hash className="h-3 w-3" />
+                {thesis.archiveRegistrationNumber}
+              </span>
+            )}
             <span className="text-xs text-gray-500 dark:text-gray-400">
               Created {formatDate(thesis.createdAt)}
             </span>

@@ -40,7 +40,7 @@ export function DefenseSection({ thesis, onThesisChange }: DefenseSectionProps) 
 
   const isStudent  = user?.role === 'STUDENT'   && thesis.studentId === user.id
   const isMentor   = user?.role === 'MENTOR'    && thesis.mentorId  === user.id
-  const isCommittee = user?.role === 'COMMITTEE' || user?.role === 'ADMIN'
+  const isCommittee = user?.role === 'COMMITTEE' || user?.role === 'STUDENT_SERVICE'
 
   const canSchedule  = isMentor && (thesis.status === 'PENDING_DEFENSE_CHECK' || (thesis.status === 'DEFENSE_SCHEDULED' && !defense))
   const canCancel    = (isStudent || isMentor) && defense && !defense.isCancelled

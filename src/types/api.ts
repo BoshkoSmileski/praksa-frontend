@@ -14,16 +14,20 @@ export interface ApiResponse<T> {
 // Enums (string unions match Java enum names)
 // -----------------------------------------------------------------------------
 
-export type Role = 'STUDENT' | 'MENTOR' | 'ADMIN' | 'COMMITTEE' | 'ARCHIVE'
+export type Role = 'STUDENT' | 'MENTOR' | 'STUDENT_SERVICE' | 'COMMITTEE' | 'ARCHIVE'
 
 export type ThesisStatus =
   | 'PENDING_ELIGIBILITY_CHECK'
   | 'ELIGIBILITY_REJECTED'
   | 'TOPIC_SELECTION'
   | 'PENDING_MENTOR_APPROVAL'
+  | 'MENTOR_REQUESTED_CHANGES'
   | 'MENTOR_REJECTED_TOPIC'
   | 'APPLICATION_SUBMITTED'
-  | 'ADMINISTRATIVE_VALIDATION'
+  | 'PENDING_ARCHIVE_VALIDATION'
+  | 'APPLICATION_REJECTED_BY_ARCHIVE'
+  | 'PENDING_SERVICE_VALIDATION'
+  | 'APPLICATION_REJECTED_BY_SERVICE'
   | 'IN_PROGRESS'
   | 'FINAL_SUBMITTED'
   | 'MENTOR_APPROVED'
@@ -34,6 +38,8 @@ export type ThesisStatus =
   | 'ARCHIVED'
 
 export type MemberRole = 'MENTOR_MEMBER' | 'FORMAL_MEMBER'
+
+export type MentorDecision = 'ACCEPT' | 'REJECT' | 'REQUEST_CHANGES'
 
 // -----------------------------------------------------------------------------
 // Auth
@@ -79,15 +85,28 @@ export interface Thesis {
   id: string
   title: string
   status: ThesisStatus
+  revisionCount: number
   studentId: string
   studentName: string
   mentorId: string | null
   mentorName: string | null
   studentComment: string | null
   mentorComment: string | null
+  archiveComment: string | null
+  serviceComment: string | null
   submissionDeadline: string | null
   createdAt: string
   updatedAt: string
+
+  // Archive metadata — null until thesis is ARCHIVED
+  archiveRegistrationNumber: string | null
+  archiveDate: string | null
+  archivedById: string | null
+  archivedByName: string | null
+  archiveNotes: string | null
+
+  // Whether the application PDF has been generated and is downloadable
+  hasApplicationPdf: boolean
 }
 
 export interface CreateThesisRequest {

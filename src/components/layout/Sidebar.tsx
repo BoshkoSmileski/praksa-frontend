@@ -21,12 +21,12 @@ interface NavItem {
 
 // Single source of truth for navigation. Each role only sees items it's allowed.
 const navItems: NavItem[] = [
-  { label: 'Dashboard',     to: '/dashboard',     icon: LayoutDashboard, roles: ['STUDENT', 'MENTOR', 'ADMIN', 'COMMITTEE', 'ARCHIVE'] },
-  { label: 'My Theses',     to: '/theses',        icon: FileText,        roles: ['STUDENT', 'MENTOR', 'ADMIN', 'ARCHIVE'] },
-  { label: 'Committee',     to: '/committee',     icon: Users,           roles: ['MENTOR', 'ADMIN', 'COMMITTEE'] },
-  { label: 'Defenses',      to: '/defenses',      icon: Calendar,        roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'ADMIN'] },
-  { label: 'Notifications', to: '/notifications', icon: Bell,            roles: ['STUDENT', 'MENTOR', 'ADMIN', 'COMMITTEE', 'ARCHIVE'] },
-  { label: 'Archive',       to: '/archive',       icon: Archive,         roles: ['ADMIN', 'ARCHIVE'] },
+  { label: 'Dashboard',     to: '/dashboard',     icon: LayoutDashboard, roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
+  { label: 'My Theses',     to: '/theses',        icon: FileText,        roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'ARCHIVE'] },
+  { label: 'Committee',     to: '/committee',     icon: Users,           roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
+  { label: 'Defenses',      to: '/defenses',      icon: Calendar,        roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
+  { label: 'Notifications', to: '/notifications', icon: Bell,            roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
+  { label: 'Archive',       to: '/archive',       icon: Archive,         roles: ['STUDENT_SERVICE', 'ARCHIVE'] },
 ]
 
 export function Sidebar() {
