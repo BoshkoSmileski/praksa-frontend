@@ -30,8 +30,9 @@ api.interceptors.response.use(
     const status = error.response?.status
     const backendMessage = error.response?.data?.message
 
-    if (status === 401 || status === 403) {
-      // Token expired or insufficient permissions — log out and redirect.
+    if (status === 401) {
+      // 401 = UNAUTHENTICATED: the JWT is missing, invalid, or expired — the session
+      // itself is no longer usable. Clear it and send the user back to login.
       const logout = useAuthStore.getState().logout
       if (useAuthStore.getState().token) {
         logout()
@@ -41,6 +42,13 @@ api.interceptors.response.use(
           window.location.href = '/login'
         }
       }
+    } else if (status === 403) {
+      // 403 = FORBIDDEN: the session is still valid, but the user is not allowed to
+      // read/act on THIS particular resource (e.g. a thesis they are not related to —
+      // the read-side IDOR guard). This must NOT destroy the valid session. Surface a
+      // resource-level access-denied error and let the calling component decide how to
+      // present it (empty/not-authorized state); do not log the user out or redirect.
+      toast.error(backendMessage || 'You do not have access to this resource.')
     } else if (status && status >= 500) {
       toast.error('Server error. Please try again later.')
     } else if (backendMessage) {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FileText, ArrowRight, Bell, Users, Calendar } from 'lucide-react'
+import { FileText, ArrowRight, Bell, Users, Calendar, Coins } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
 import type { Role } from '@/types/api'
@@ -17,6 +17,7 @@ const actions: QuickAction[] = [
   { to: '/notifications', title: 'Notifications',        description: 'Recent system notifications',                  icon: Bell,     roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
   { to: '/committee',     title: 'Committee Management', description: 'Review thesis defense committees',             icon: Users,    roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
   { to: '/defenses',      title: 'Defense Scheduling',   description: 'Schedule, cancel or attend a defense',         icon: Calendar, roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
+  { to: '/students',      title: 'Student Credits',      description: 'Record or update student credit balances',      icon: Coins,    roles: ['STUDENT_SERVICE'] },
 ]
 
 export function DashboardPage() {

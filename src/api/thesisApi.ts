@@ -28,6 +28,18 @@ export const thesisApi = {
     return res.data.data
   },
 
+  // GET /api/theses/committee — role-scoped list for the Committee page
+  getCommittee: async (): Promise<Thesis[]> => {
+    const res = await api.get<ApiResponse<Thesis[]>>('/theses/committee')
+    return res.data.data
+  },
+
+  // GET /api/theses/defenses — role-scoped list for the Defenses page
+  getDefenses: async (): Promise<Thesis[]> => {
+    const res = await api.get<ApiResponse<Thesis[]>>('/theses/defenses')
+    return res.data.data
+  },
+
   // GET /api/theses/{id}
   getById: async (id: string): Promise<Thesis> => {
     const res = await api.get<ApiResponse<Thesis>>(`/theses/${id}`)
@@ -97,6 +109,28 @@ export const thesisApi = {
   // PATCH /api/theses/{id}/approve-final
   approveFinal: async (id: string): Promise<Thesis> => {
     const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/approve-final`)
+    return res.data.data
+  },
+
+  // PATCH /api/theses/{id}/archive-notes — ARCHIVE role sets/edits the free-text
+  // archive notes on an ARCHIVED thesis (P2.2). Backend enforces role + status;
+  // never changes the thesis status and never sends a notification. Empty string clears.
+  updateArchiveNotes: async (id: string, notes: string): Promise<Thesis> => {
+    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/archive-notes`, { notes })
+    return res.data.data
+  },
+
+  // PATCH /api/theses/{id}/defense-eligibility — STUDENT_SERVICE verifies defense conditions (Item #8).
+  // Both flags must be true; on success PENDING_DEFENSE_CHECK → PENDING_DEFENSE_SCHEDULING.
+  verifyDefenseEligibility: async (
+    id: string,
+    examsCompleted: boolean,
+    documentationComplete: boolean,
+  ): Promise<Thesis> => {
+    const res = await api.patch<ApiResponse<Thesis>>(`/theses/${id}/defense-eligibility`, {
+      examsCompleted,
+      documentationComplete,
+    })
     return res.data.data
   },
 }

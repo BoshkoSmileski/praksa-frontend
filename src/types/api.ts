@@ -34,6 +34,7 @@ export type ThesisStatus =
   | 'COMMITTEE_REVIEW'
   | 'COMMITTEE_ACCEPTED'
   | 'PENDING_DEFENSE_CHECK'
+  | 'PENDING_DEFENSE_SCHEDULING'
   | 'DEFENSE_SCHEDULED'
   | 'ARCHIVED'
 
@@ -67,14 +68,49 @@ export interface AuthResponse {
 }
 
 // -----------------------------------------------------------------------------
-// User summary (for pickers/dropdowns)
+// User summaries (for pickers/lists) — PURPOSE-SPECIFIC.
+//
+// The backend `GET /api/users?role=` endpoint returns a different, minimal shape
+// per use case (P2 user-enumeration / PII-leak fix). Mirror that on the client so
+// each consumer only sees the fields the backend actually sends.
 // -----------------------------------------------------------------------------
 
-export interface UserSummary {
+/**
+ * Mentor lookup (mentor picker + propose-committee). Identity only — the backend
+ * deliberately does NOT send email/index/credits for this use case.
+ */
+export interface MentorSummary {
+  id: string
+  fullName: string
+  role: Role
+}
+
+/**
+ * STUDENT_SERVICE credit-management list. Includes the student-identifying email +
+ * index number and the current credit balance (credits/indexNumber may be null for
+ * a student whose values were never recorded).
+ */
+export interface StudentSummary {
+  id: string
+  fullName: string
+  role: Role
+  email: string
+  indexNumber: string | null
+  credits: number | null
+}
+
+// Detailed user (GET /api/users/me) — includes credit balance for students
+export interface UserDetail {
   id: string
   email: string
   fullName: string
   role: Role
+  indexNumber: string | null
+  credits: number | null
+}
+
+export interface UpdateCreditsRequest {
+  credits: number
 }
 
 // -----------------------------------------------------------------------------
@@ -199,7 +235,14 @@ export interface Notification {
   thesisId: string | null
   thesisTitle: string | null
   type: string
-  isSent: boolean
+  // Email-delivery flag. The backend field is `isSent`, but Jackson strips the "is"
+  // prefix from the boolean getter, so the WIRE key is `sent` (P3.4 audit fix — the
+  // type previously declared `isSent`, which never matched the payload and left the
+  // Sent/Pending badge permanently on "Pending").
+  sent: boolean
+  // P3.6 — application read/unread state. Serialized by the backend as "read"
+  // (Jackson strips the "is" prefix from the boolean getter).
+  read: boolean
   sentAt: string | null
   createdAt: string
 }

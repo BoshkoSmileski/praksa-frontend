@@ -10,9 +10,12 @@ import type { ThesisComment } from '@/types/api'
 interface CommentListProps {
   thesisId: string
   versionId: string
+  // The backend only lets the student-owner or assigned mentor add a comment.
+  // Pass false to hide the input for read-only viewers (e.g. committee members).
+  canComment?: boolean
 }
 
-export function CommentList({ thesisId, versionId }: CommentListProps) {
+export function CommentList({ thesisId, versionId, canComment = true }: CommentListProps) {
   const [comments, setComments] = useState<ThesisComment[]>([])
   const [loading, setLoading] = useState(true)
   const [content, setContent] = useState('')
@@ -87,29 +90,31 @@ export function CommentList({ thesisId, versionId }: CommentListProps) {
         })
       )}
 
-      {/* Add comment form */}
-      <form onSubmit={handleSubmit} className="flex items-end gap-2 pt-2">
-        <textarea
-          rows={2}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Add a comment..."
-          maxLength={2000}
-          className="input-field resize-none"
-        />
-        <button
-          type="submit"
-          disabled={!content.trim() || submitting}
-          className="btn-primary"
-          title="Send"
-        >
-          {submitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-        </button>
-      </form>
+      {/* Add comment form — only for the student-owner and assigned mentor. */}
+      {canComment && (
+        <form onSubmit={handleSubmit} className="flex items-end gap-2 pt-2">
+          <textarea
+            rows={2}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Add a comment..."
+            maxLength={2000}
+            className="input-field resize-none"
+          />
+          <button
+            type="submit"
+            disabled={!content.trim() || submitting}
+            className="btn-primary"
+            title="Send"
+          >
+            {submitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </button>
+        </form>
+      )}
     </div>
   )
 }

@@ -26,6 +26,7 @@ const statusConfig: Record<ThesisStatus, { label: string; classes: string }> = {
   COMMITTEE_REVIEW:          { label: 'Committee Review',        classes: 'bg-violet-100 text-violet-800 ring-violet-200 dark:bg-violet-950 dark:text-violet-200 dark:ring-violet-900' },
   COMMITTEE_ACCEPTED:        { label: 'Committee Accepted',      classes: 'bg-emerald-100 text-emerald-800 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:ring-emerald-900' },
   PENDING_DEFENSE_CHECK:     { label: 'Defense Check',           classes: 'bg-amber-100 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:ring-amber-900' },
+  PENDING_DEFENSE_SCHEDULING:{ label: 'Awaiting Scheduling',     classes: 'bg-amber-100 text-amber-800 ring-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:ring-amber-900' },
   DEFENSE_SCHEDULED:         { label: 'Defense Scheduled',       classes: 'bg-cyan-100 text-cyan-800 ring-cyan-200 dark:bg-cyan-950 dark:text-cyan-200 dark:ring-cyan-900' },
   ARCHIVED:                  { label: 'Archived',                classes: 'bg-green-100 text-green-800 ring-green-200 dark:bg-green-950 dark:text-green-200 dark:ring-green-900' },
 }

@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { userApi } from '@/api/userApi'
 import { committeeApi } from '@/api/committeeApi'
 import { cn } from '@/utils/cn'
-import type { UserSummary } from '@/types/api'
+import type { MentorSummary } from '@/types/api'
 
 interface ProposeCommitteeModalProps {
   open: boolean
@@ -20,7 +20,7 @@ interface ProposeCommitteeModalProps {
 export function ProposeCommitteeModal({
   open, onClose, thesisId, mentorId, onProposed,
 }: ProposeCommitteeModalProps) {
-  const [mentors, setMentors] = useState<UserSummary[]>([])
+  const [mentors, setMentors] = useState<MentorSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
@@ -30,7 +30,7 @@ export function ProposeCommitteeModal({
     setSelectedIds([])
     setLoading(true)
     userApi
-      .getByRole('MENTOR')
+      .getMentors()
       // The mentor of this thesis is auto-added as MENTOR_MEMBER by the backend;
       // they cannot also be a formal member, so we filter them out of the picker.
       .then((all) => setMentors(all.filter((m) => m.id !== mentorId)))
@@ -125,7 +125,6 @@ export function ProposeCommitteeModal({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">{m.fullName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{m.email}</p>
                   </div>
                   {isSelected && <CheckCircle className="h-5 w-5 text-brand-600 shrink-0" />}
                 </button>

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Bell, BellOff, CheckCircle, XCircle } from 'lucide-react'
+import { Bell, BellOff, CheckCircle, XCircle, CheckCheck, Check } from 'lucide-react'
+import { toast } from 'sonner'
 import { notificationApi } from '@/api/notificationApi'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatDateTime } from '@/utils/date'
+import { cn } from '@/utils/cn'
 import type { Notification } from '@/types/api'
 
 // Friendly labels for notification types coming from the backend enum.
@@ -20,6 +22,8 @@ const typeLabels: Record<string, string> = {
   MENTOR_APPROVED_THESIS: 'Mentor Approved Thesis',
   COMMITTEE_FORMED: 'Committee Formed',
   COMMITTEE_REVIEW_ACCEPTED: 'Committee Review Accepted',
+  DEFENSE_ELIGIBILITY_VERIFIED: 'Defense Eligibility Verified',
+  DEFENSE_REQUESTED: 'Defense Requested',
   DEFENSE_SCHEDULED: 'Defense Scheduled',
   DEFENSE_CANCELLED: 'Defense Cancelled',
   THESIS_GRADED: 'Thesis Graded',
@@ -29,6 +33,7 @@ const typeLabels: Record<string, string> = {
 export function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
+  const [markingAll, setMarkingAll] = useState(false)
 
   useEffect(() => {
     notificationApi
@@ -37,11 +42,51 @@ export function NotificationsPage() {
       .finally(() => setLoading(false))
   }, [])
 
+  const unreadCount = notifications.filter((n) => !n.read).length
+
+  // Mark one notification read: update just that row in place on success.
+  // The axios interceptor surfaces any error toast (401 vs 403 handled globally).
+  const handleMarkRead = async (id: string) => {
+    // optimistic-safe: only flip after the server confirms ownership + persistence
+    await notificationApi.markRead(id)
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    )
+  }
+
+  const handleMarkAll = async () => {
+    setMarkingAll(true)
+    try {
+      const marked = await notificationApi.markAllRead()
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+      toast.success(
+        marked > 0
+          ? `Marked ${marked} notification${marked === 1 ? '' : 's'} as read`
+          : 'No unread notifications'
+      )
+    } finally {
+      setMarkingAll(false)
+    }
+  }
+
   return (
     <div>
       <PageHeader
         title="Notifications"
         description="Recent system notifications about your theses and tasks"
+        action={
+          unreadCount > 0 ? (
+            <button
+              type="button"
+              onClick={handleMarkAll}
+              disabled={markingAll}
+              className="btn-secondary inline-flex items-center gap-2"
+            >
+              <CheckCheck className="h-4 w-4" />
+              Mark all as read ({unreadCount})
+            </button>
+          ) : undefined
+        }
       />
 
       {loading ? (
@@ -69,7 +114,11 @@ export function NotificationsPage() {
       ) : (
         <div className="space-y-2">
           {notifications.map((n) => (
-            <NotificationCard key={n.id} notification={n} />
+            <NotificationCard
+              key={n.id}
+              notification={n}
+              onMarkRead={handleMarkRead}
+            />
           ))}
         </div>
       )}
@@ -77,20 +126,66 @@ export function NotificationsPage() {
   )
 }
 
-function NotificationCard({ notification }: { notification: Notification }) {
+function NotificationCard({
+  notification,
+  onMarkRead,
+}: {
+  notification: Notification
+  onMarkRead: (id: string) => Promise<void>
+}) {
   const label = typeLabels[notification.type] ?? notification.type
+  const isUnread = !notification.read
+  const [busy, setBusy] = useState(false)
+
+  const handleClick = async () => {
+    setBusy(true)
+    try {
+      await onMarkRead(notification.id)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
-    <div className="card p-4">
+    <div
+      className={cn(
+        'card p-4 transition-colors',
+        // Unread notifications are visually distinct: brand-tinted background and a
+        // left accent bar. Read notifications use the default card styling.
+        isUnread &&
+          'border-l-4 border-l-brand-500 bg-brand-50/60 dark:bg-brand-950/30'
+      )}
+    >
       <div className="flex items-start gap-3">
-        <div className="rounded-full bg-brand-100 p-2 text-brand-700 dark:bg-brand-950 dark:text-brand-300 shrink-0">
+        <div
+          className={cn(
+            'rounded-full p-2 shrink-0',
+            isUnread
+              ? 'bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-200'
+              : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+          )}
+        >
           <Bell className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+            {isUnread && (
+              <span
+                title="Unread"
+                className="h-2 w-2 shrink-0 rounded-full bg-brand-500"
+              />
+            )}
+            <p
+              className={cn(
+                'text-sm',
+                isUnread
+                  ? 'font-semibold text-gray-900 dark:text-gray-50'
+                  : 'font-medium text-gray-700 dark:text-gray-300'
+              )}
+            >
               {label}
             </p>
-            {notification.isSent ? (
+            {notification.sent ? (
               <span
                 title="Email sent"
                 className="inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400"
@@ -117,6 +212,18 @@ function NotificationCard({ notification }: { notification: Notification }) {
             {formatDateTime(notification.createdAt)}
           </p>
         </div>
+        {isUnread && (
+          <button
+            type="button"
+            onClick={handleClick}
+            disabled={busy}
+            title="Mark as read"
+            className="btn-secondary inline-flex items-center gap-1 self-center whitespace-nowrap px-2.5 py-1.5 text-xs"
+          >
+            <Check className="h-3.5 w-3.5" />
+            Mark read
+          </button>
+        )}
       </div>
     </div>
   )

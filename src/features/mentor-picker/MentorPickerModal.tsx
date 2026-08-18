@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { userApi } from '@/api/userApi'
 import { thesisApi } from '@/api/thesisApi'
 import { cn } from '@/utils/cn'
-import type { Thesis, UserSummary } from '@/types/api'
+import type { Thesis, MentorSummary } from '@/types/api'
 
 interface MentorPickerModalProps {
   open: boolean
@@ -17,7 +17,7 @@ interface MentorPickerModalProps {
 }
 
 export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: MentorPickerModalProps) {
-  const [mentors, setMentors] = useState<UserSummary[]>([])
+  const [mentors, setMentors] = useState<MentorSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [comment, setComment] = useState('')
@@ -30,7 +30,7 @@ export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: Ment
     setSelectedId(null)
     setComment('')
     userApi
-      .getByRole('MENTOR')
+      .getMentors()
       .then(setMentors)
       .finally(() => setLoading(false))
   }, [open])
@@ -108,9 +108,6 @@ export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: Ment
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
                       {m.fullName}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {m.email}
                     </p>
                   </div>
                   {isSelected && (

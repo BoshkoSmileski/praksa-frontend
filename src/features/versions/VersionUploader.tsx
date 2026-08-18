@@ -1,5 +1,5 @@
 import { useRef, useState, type DragEvent, type ChangeEvent } from 'react'
-import { UploadCloud, FileText, Loader2 } from 'lucide-react'
+import { UploadCloud, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { versionApi } from '@/api/versionApi'
 import { cn } from '@/utils/cn'

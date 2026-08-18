@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Loader2, Mail, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import { authApi } from '@/api/authApi'
@@ -91,6 +91,13 @@ export function LoginPage() {
           {loading ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
+
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        Don't have an account?{' '}
+        <Link to="/register" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">
+          Register
+        </Link>
+      </p>
 
       <div className="mt-6 rounded-lg bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
         <p className="font-medium mb-1">Test accounts (password: <code className="font-mono">password123</code>):</p>

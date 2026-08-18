@@ -1,8 +1,15 @@
 import { api } from './client'
-import type { ApiResponse, Defense, DefenseResult } from '@/types/api'
+import type { ApiResponse, Defense, DefenseResult, Thesis } from '@/types/api'
 
 export const defenseApi = {
-  // POST /api/theses/{thesisId}/defenses
+  // POST /api/theses/{thesisId}/defenses/request — STUDENT requests a defense.
+  // Returns the updated thesis (now PENDING_DEFENSE_SCHEDULING). No Defense row yet.
+  request: async (thesisId: string): Promise<Thesis> => {
+    const res = await api.post<ApiResponse<Thesis>>(`/theses/${thesisId}/defenses/request`)
+    return res.data.data
+  },
+
+  // POST /api/theses/{thesisId}/defenses — STUDENT_SERVICE schedules the defense
   schedule: async (thesisId: string, room: string, scheduledAt: string): Promise<Defense> => {
     const res = await api.post<ApiResponse<Defense>>(
       `/theses/${thesisId}/defenses`,
@@ -53,5 +60,15 @@ export const defenseApi = {
     } catch {
       return null
     }
+  },
+
+  // GET /api/theses/{thesisId}/defenses/{defenseId}/record-pdf — the defense record
+  // ("записник за одбрана") as a PDF Blob. Only available once the defense is graded.
+  downloadRecordPdf: async (thesisId: string, defenseId: string): Promise<Blob> => {
+    const res = await api.get(
+      `/theses/${thesisId}/defenses/${defenseId}/record-pdf`,
+      { responseType: 'blob' }
+    )
+    return res.data
   },
 }

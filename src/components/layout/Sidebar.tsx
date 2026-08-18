@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   GraduationCap,
   LayoutDashboard,
@@ -7,8 +8,10 @@ import {
   Calendar,
   Bell,
   Archive,
+  Coins,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { notificationApi } from '@/api/notificationApi'
 import { cn } from '@/utils/cn'
 import type { Role } from '@/types/api'
 
@@ -27,10 +30,32 @@ const navItems: NavItem[] = [
   { label: 'Defenses',      to: '/defenses',      icon: Calendar,        roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
   { label: 'Notifications', to: '/notifications', icon: Bell,            roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
   { label: 'Archive',       to: '/archive',       icon: Archive,         roles: ['STUDENT_SERVICE', 'ARCHIVE'] },
+  { label: 'Student Credits', to: '/students',    icon: Coins,           roles: ['STUDENT_SERVICE'] },
 ]
 
 export function Sidebar() {
   const user = useAuthStore((s) => s.user)
+  const location = useLocation()
+  // Unread notification count for the Notifications nav badge. Refetched on every
+  // route change so it stays current after the user reads notifications and navigates
+  // away — no polling, no extra state library. Failures are swallowed (badge just hides).
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    notificationApi
+      .getUnreadCount()
+      .then((count) => {
+        if (!cancelled) setUnreadCount(count)
+      })
+      .catch(() => {
+        if (!cancelled) setUnreadCount(0)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [location.pathname])
+
   if (!user) return null
 
   const visibleItems = navItems.filter((item) => item.roles.includes(user.role))
@@ -70,7 +95,15 @@ export function Sidebar() {
               }
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.to === '/notifications' && unreadCount > 0 && (
+                <span
+                  title={`${unreadCount} unread`}
+                  className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-brand-600 px-1.5 py-0.5 text-xs font-semibold text-white"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavLink>
           )
         })}

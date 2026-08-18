@@ -1,15 +1,32 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { thesisApi } from '@/api/thesisApi'
+import { userApi } from '@/api/userApi'
 import { PageHeader } from '@/components/ui/PageHeader'
+
+const REQUIRED_CREDITS = 200
 
 export function CreateThesisPage() {
   const [title, setTitle] = useState('')
   const [studentComment, setStudentComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [credits, setCredits] = useState<number | null>(null)
+  const [creditsLoaded, setCreditsLoaded] = useState(false)
   const navigate = useNavigate()
+
+  // Load the student's own credit balance so we can warn them before they try.
+  // This is a usability hint only — the backend enforces the 200-credit gate.
+  useEffect(() => {
+    userApi
+      .getMe()
+      .then((me) => setCredits(me.credits))
+      .catch(() => setCredits(null))
+      .finally(() => setCreditsLoaded(true))
+  }, [])
+
+  const eligible = credits != null && credits >= REQUIRED_CREDITS
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -42,6 +59,28 @@ export function CreateThesisPage() {
         title="Create New Thesis"
         description="Submit your thesis title to request the eligibility check."
       />
+
+      {/* Credit status — usability hint; the backend enforces the 200-credit gate */}
+      {creditsLoaded && (
+        eligible ? (
+          <div className="mb-4 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-900 dark:bg-green-950 dark:border-green-900 dark:text-green-200">
+            You have <span className="font-semibold">{credits}</span> credits — you meet the {REQUIRED_CREDITS}-credit
+            requirement to submit a thesis application.
+          </div>
+        ) : (
+          <div className="mb-4 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:border-amber-900 dark:text-amber-200">
+            <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium">You cannot submit a thesis application yet.</p>
+              <p className="mt-1">
+                At least {REQUIRED_CREDITS} credits are required. You currently have{' '}
+                <span className="font-semibold">{credits ?? 'no recorded'}</span> credits. Contact Student Service to
+                have your credits recorded or updated.
+              </p>
+            </div>
+          </div>
+        )
+      )}
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-5">
         <div>
@@ -86,7 +125,12 @@ export function CreateThesisPage() {
           >
             Cancel
           </button>
-          <button type="submit" disabled={submitting} className="btn-primary">
+          <button
+            type="submit"
+            disabled={submitting || (creditsLoaded && !eligible)}
+            title={creditsLoaded && !eligible ? `At least ${REQUIRED_CREDITS} credits are required` : undefined}
+            className="btn-primary"
+          >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {submitting ? 'Creating...' : 'Create Thesis'}
           </button>

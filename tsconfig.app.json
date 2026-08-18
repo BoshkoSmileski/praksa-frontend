@@ -21,10 +21,11 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
 
-    /* Path aliases — must match vite.config.ts */
-    "baseUrl": ".",
+    /* Path aliases — must match vite.config.ts.
+       No baseUrl: under "moduleResolution": "bundler", non-rooted `paths`
+       targets resolve relative to this tsconfig's directory (TS7-ready). */
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]
