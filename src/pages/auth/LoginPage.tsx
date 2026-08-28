@@ -27,7 +27,7 @@ export function LoginPage() {
         fullName: auth.fullName,
         role: auth.role,
       })
-      toast.success(`Welcome back, ${auth.fullName}!`)
+      toast.success(`Добредојдовте, ${auth.fullName}!`)
       navigate(from, { replace: true })
     } catch {
       // Error toast already shown by axios interceptor
@@ -40,17 +40,17 @@ export function LoginPage() {
     <div>
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-          Sign in to your account
+          Најавете се на вашата сметка
         </h2>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Use your university credentials
+          Користете ги вашите универзитетски податоци
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email
+            Е-пошта
           </label>
           <div className="relative mt-1">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -61,7 +61,7 @@ export function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-field pl-9"
-              placeholder="you@university.edu"
+              placeholder="vasa.posta@univerzitet.edu"
               autoComplete="email"
             />
           </div>
@@ -69,7 +69,7 @@ export function LoginPage() {
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Password
+            Лозинка
           </label>
           <div className="relative mt-1">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -88,19 +88,19 @@ export function LoginPage() {
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {loading ? 'Signing in...' : 'Sign in'}
+          {loading ? 'Најавување...' : 'Најави се'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-        Don't have an account?{' '}
+        Немате сметка?{' '}
         <Link to="/register" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">
-          Register
+          Регистрирајте се
         </Link>
       </p>
 
       <div className="mt-6 rounded-lg bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-        <p className="font-medium mb-1">Test accounts (password: <code className="font-mono">password123</code>):</p>
+        <p className="font-medium mb-1">Тестовски сметки (лозинка: <code className="font-mono">password123</code>):</p>
         <ul className="space-y-0.5 font-mono text-[11px]">
           <li>student@test.com</li>
           <li>mentor@test.com</li>

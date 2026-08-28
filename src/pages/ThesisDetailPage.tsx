@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Calendar, User, MessageSquare, CheckCircle, XCircle, Loader2, History, UserPlus, RefreshCw, AlertCircle, AlertTriangle, Archive as ArchiveIcon, Hash, FileText, Download } from 'lucide-react'
+import { ArrowLeft, Calendar, User, MessageSquare, CheckCircle, XCircle, Loader2, History, UserPlus, RefreshCw, AlertCircle, AlertTriangle, Archive as ArchiveIcon, Hash, FileText, Download, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { thesisApi } from '@/api/thesisApi'
 import { useAuthStore } from '@/store/authStore'
@@ -13,6 +13,7 @@ import { MentorDecisionModal, type MentorDecisionMode } from '@/features/mentor-
 import { VersionsSection } from '@/features/versions/VersionsSection'
 import { CommitteeSection } from '@/features/committee/CommitteeSection'
 import { DefenseSection } from '@/features/defense/DefenseSection'
+import { DeadlineExtensionSection } from '@/features/deadline-extension/DeadlineExtensionSection'
 import { formatDate, formatDateTime } from '@/utils/date'
 import type { Thesis, ThesisStatusHistory } from '@/types/api'
 
@@ -101,7 +102,7 @@ export function ThesisDetailPage() {
   const confirmReject = async (comment: string) => {
     if (!rejectStage) return
     const isArchiveStage = rejectStage === 'ARCHIVE'
-    const label = isArchiveStage ? 'Archive rejected' : 'Service rejected'
+    const label = isArchiveStage ? 'Архивата одби' : 'Студентската служба одби'
     const api = isArchiveStage ? thesisApi.archiveValidate : thesisApi.serviceValidate
     await runAction(label, () => api(thesis.id, false, comment))
     setRejectStage(null)
@@ -112,10 +113,10 @@ export function ThesisDetailPage() {
   const confirmMentorDecision = async (comment: string) => {
     if (!mentorDecision) return
     if (mentorDecision === 'REQUEST_CHANGES') {
-      await runAction('Changes requested',
+      await runAction('Побарани се измени',
         () => thesisApi.decideMentorRequest(thesis.id, 'REQUEST_CHANGES', comment))
     } else {
-      await runAction('Topic rejected',
+      await runAction('Темата е одбиена',
         () => thesisApi.decideMentorRequest(thesis.id, 'REJECT', comment || undefined))
     }
     setMentorDecision(null)
@@ -129,7 +130,7 @@ export function ThesisDetailPage() {
       const updated = await thesisApi.updateArchiveNotes(thesis.id, archiveNotesDraft.trim())
       setThesis(updated)
       setEditingArchiveNotes(false)
-      toast.success('Archive notes saved')
+      toast.success('Забелешките на архивата се зачувани')
     } catch {
       // interceptor surfaces the error
     } finally {
@@ -144,7 +145,7 @@ export function ThesisDetailPage() {
         className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to theses
+        Назад кон дипломски работи
       </button>
 
       {/* Archive Record — only when thesis is officially archived */}
@@ -156,7 +157,7 @@ export function ThesisDetailPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                Official Archive Record
+                Официјален архивски запис
               </p>
               <p className="mt-1 flex items-center gap-2 text-2xl font-mono font-bold text-gray-900 dark:text-gray-50">
                 <Hash className="h-5 w-5 text-emerald-600" />
@@ -164,20 +165,20 @@ export function ThesisDetailPage() {
               </p>
               <div className="mt-3 grid gap-2 text-sm text-gray-700 dark:text-gray-300 sm:grid-cols-2">
                 <div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">Archived on: </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Архивирано на: </span>
                   {formatDateTime(thesis.archiveDate)}
                 </div>
                 <div>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">Archived by: </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Архивирано од: </span>
                   {thesis.archivedByName ?? '—'}
                 </div>
                 {(thesis.archiveNotes || isArchive) && !editingArchiveNotes && (
                   <div className="sm:col-span-2 mt-1">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">Archive notes: </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">Забелешки на архивата: </span>
                     {thesis.archiveNotes ? (
                       <span className="whitespace-pre-wrap">{thesis.archiveNotes}</span>
                     ) : (
-                      <span className="italic text-gray-500 dark:text-gray-400">No notes recorded.</span>
+                      <span className="italic text-gray-500 dark:text-gray-400">Нема внесени забелешки.</span>
                     )}
                     {/* P2.2 — only the ARCHIVE role can add/edit these notes; backend is authoritative. */}
                     {isArchive && (
@@ -189,7 +190,7 @@ export function ThesisDetailPage() {
                         }}
                         className="ml-2 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline dark:text-emerald-400"
                       >
-                        {thesis.archiveNotes ? 'Edit notes' : 'Add notes'}
+                        {thesis.archiveNotes ? 'Уреди забелешки' : 'Додади забелешки'}
                       </button>
                     )}
                   </div>
@@ -197,14 +198,14 @@ export function ThesisDetailPage() {
                 {isArchive && editingArchiveNotes && (
                   <div className="sm:col-span-2 mt-1">
                     <label className="mb-1 block font-medium text-gray-900 dark:text-gray-100">
-                      Archive notes
+                      Забелешки на архивата
                     </label>
                     <textarea
                       value={archiveNotesDraft}
                       onChange={(e) => setArchiveNotesDraft(e.target.value)}
                       rows={3}
                       maxLength={5000}
-                      placeholder="Physical location, condition, or any archival annotation…"
+                      placeholder="Физичка локација, состојба или друга архивска забелешка…"
                       className="input-field w-full text-sm"
                     />
                     <div className="mt-2 flex items-center gap-2">
@@ -214,7 +215,7 @@ export function ThesisDetailPage() {
                         disabled={actionLoading}
                         className="btn-primary text-xs"
                       >
-                        {actionLoading ? 'Saving…' : 'Save notes'}
+                        {actionLoading ? 'Зачувување…' : 'Зачувај забелешки'}
                       </button>
                       <button
                         type="button"
@@ -222,12 +223,48 @@ export function ThesisDetailPage() {
                         disabled={actionLoading}
                         className="btn-secondary text-xs"
                       >
-                        Cancel
+                        Откажи
                       </button>
                     </div>
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Defense Failed — grade 5, official faculty rule: NOT archived, student may reapply.
+          Never shown together with the Archive Record card (the statuses are mutually exclusive). */}
+      {thesis.status === 'DEFENSE_FAILED' && (
+        <div className="card mb-6 p-5 border-l-4 border-red-500 bg-gradient-to-r from-red-50/60 to-transparent dark:from-red-950/30 dark:to-transparent">
+          <div className="flex items-start gap-4">
+            <div className="rounded-lg bg-red-600 p-3 text-white shrink-0">
+              <XCircle className="h-6 w-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-red-700 dark:text-red-400">
+                Одбраната не е положена
+              </p>
+              <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                Комисијата за одбрана внесе оценка 5 — оваа дипломска работа <strong>не е</strong>{' '}
+                успешно одбранета. Не е архивирана и нема официјален регистарски број.
+              </p>
+              <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                {isStudent
+                  ? 'Можете да ја преработите темата со вашиот ментор или да поднесете сосема нова пријава за дипломска работа.'
+                  : 'Студентот може да ја преработи темата со менторот или да поднесе сосема нова пријава за дипломска работа.'}
+              </p>
+              {isStudent && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/theses/new')}
+                  className="btn-primary mt-3 text-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  Започни нова пријава за дипломска работа
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -241,23 +278,23 @@ export function ThesisDetailPage() {
               <StatusBadge status={thesis.status} />
               {thesis.revisionCount > 0 && (
                 <span
-                  title={`Mentor has requested changes ${thesis.revisionCount} time${thesis.revisionCount === 1 ? '' : 's'}`}
+                  title={`Менторот побара измени ${thesis.revisionCount} пат(и)`}
                   className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800 ring-1 ring-inset ring-orange-200 dark:bg-orange-950 dark:text-orange-200 dark:ring-orange-900"
                 >
                   <RefreshCw className="h-3 w-3" />
-                  {thesis.revisionCount} revision{thesis.revisionCount === 1 ? '' : 's'}
+                  {thesis.revisionCount} ревизиј{thesis.revisionCount === 1 ? 'а' : 'и'}
                 </span>
               )}
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                Created {formatDate(thesis.createdAt)}
+                Креирана на {formatDate(thesis.createdAt)}
               </span>
               {deadlineExpired && (
                 <span
-                  title="The 1-month submission deadline has passed"
+                  title="Рокот од 1 месец за поднесување истече"
                   className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 ring-1 ring-inset ring-red-200 dark:bg-red-950 dark:text-red-200 dark:ring-red-900"
                 >
                   <AlertTriangle className="h-3 w-3" />
-                  Deadline expired
+                  Рокот е истечен
                 </span>
               )}
             </div>
@@ -267,17 +304,17 @@ export function ThesisDetailPage() {
             <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
               <span className="flex items-center gap-1.5">
                 <User className="h-4 w-4" />
-                <span className="font-medium text-gray-900 dark:text-gray-200">Student:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-200">Студент:</span>
                 {thesis.studentName}
               </span>
               <span className="flex items-center gap-1.5">
                 <User className="h-4 w-4" />
-                <span className="font-medium text-gray-900 dark:text-gray-200">Mentor:</span>
-                {thesis.mentorName || <span className="italic text-gray-400">not assigned</span>}
+                <span className="font-medium text-gray-900 dark:text-gray-200">Ментор:</span>
+                {thesis.mentorName || <span className="italic text-gray-400">не е назначен</span>}
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-4 w-4" />
-                Updated {formatDate(thesis.updatedAt)}
+                Ажурирана на {formatDate(thesis.updatedAt)}
               </span>
               {thesis.submissionDeadline && (
                 <span
@@ -287,9 +324,9 @@ export function ThesisDetailPage() {
                   }
                 >
                   <Calendar className="h-4 w-4" />
-                  <span className="font-medium text-gray-900 dark:text-gray-200">Submission deadline:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-200">Рок за поднесување:</span>
                   {formatDate(thesis.submissionDeadline)}
-                  {deadlineExpired && ' (expired)'}
+                  {deadlineExpired && ' (истечен)'}
                 </span>
               )}
             </div>
@@ -306,10 +343,10 @@ export function ThesisDetailPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Thesis Application Form (PDF)
+                    Формулар за пријава на дипломска работа (PDF)
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Generated from your submission — official document for validation
+                    Генериран од вашата пријава — официјален документ за валидација
                   </p>
                 </div>
               </div>
@@ -332,7 +369,7 @@ export function ThesisDetailPage() {
                 className="btn-secondary"
               >
                 <Download className="h-3.5 w-3.5" />
-                Download
+                Преземи
               </button>
             </div>
           </div>
@@ -342,16 +379,16 @@ export function ThesisDetailPage() {
         {(thesis.studentComment || thesis.mentorComment || thesis.archiveComment || thesis.serviceComment) && (
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800 grid gap-4 sm:grid-cols-2">
             {thesis.studentComment && (
-              <CommentBlock author="Student" content={thesis.studentComment} />
+              <CommentBlock author="Студент" content={thesis.studentComment} />
             )}
             {thesis.mentorComment && (
-              <CommentBlock author="Mentor" content={thesis.mentorComment} />
+              <CommentBlock author="Ментор" content={thesis.mentorComment} />
             )}
             {thesis.archiveComment && (
-              <CommentBlock author="Archive" content={thesis.archiveComment} />
+              <CommentBlock author="Архива" content={thesis.archiveComment} />
             )}
             {thesis.serviceComment && (
-              <CommentBlock author="Student Service" content={thesis.serviceComment} />
+              <CommentBlock author="Студентска служба" content={thesis.serviceComment} />
             )}
           </div>
         )}
@@ -375,6 +412,7 @@ export function ThesisDetailPage() {
           thesis.status === 'PENDING_DEFENSE_CHECK' ||
           thesis.status === 'PENDING_DEFENSE_SCHEDULING' ||
           thesis.status === 'DEFENSE_SCHEDULED' ||
+          thesis.status === 'DEFENSE_FAILED' ||
           thesis.status === 'ARCHIVED'
 
         const committeeVisible =
@@ -384,12 +422,14 @@ export function ThesisDetailPage() {
           thesis.status === 'PENDING_DEFENSE_CHECK' ||
           thesis.status === 'PENDING_DEFENSE_SCHEDULING' ||
           thesis.status === 'DEFENSE_SCHEDULED' ||
+          thesis.status === 'DEFENSE_FAILED' ||
           thesis.status === 'ARCHIVED'
 
         const defenseVisible =
           thesis.status === 'PENDING_DEFENSE_CHECK' ||
           thesis.status === 'PENDING_DEFENSE_SCHEDULING' ||
           thesis.status === 'DEFENSE_SCHEDULED' ||
+          thesis.status === 'DEFENSE_FAILED' ||
           thesis.status === 'ARCHIVED'
 
         return (
@@ -397,6 +437,8 @@ export function ThesisDetailPage() {
             {versionsVisible && <VersionsSection thesis={thesis} onThesisChange={refresh} />}
             {committeeVisible && <CommitteeSection thesis={thesis} onThesisChange={refresh} />}
             {defenseVisible && <DefenseSection thesis={thesis} onThesisChange={refresh} />}
+            {/* Self-gates on thesis.defenseDeadline — renders nothing before eligibility is verified. */}
+            {defenseVisible && <DeadlineExtensionSection thesis={thesis} onThesisChange={refresh} />}
           </div>
         )
       })()}
@@ -406,13 +448,13 @@ export function ThesisDetailPage() {
         <div className="lg:col-span-2">
           <div className="card p-6">
             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-4">
-              Available Actions
+              Достапни акции
             </h2>
 
             {/* No actions available */}
             {!hasAnyAction(thesis, isStudent, isMentor, isAdmin, isArchive) && (
               <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                No actions available for you at this stage.
+                Нема достапни акции за вас во оваа фаза.
               </p>
             )}
 
@@ -420,9 +462,9 @@ export function ThesisDetailPage() {
               {/* Admin: decide eligibility */}
               {isAdmin && thesis.status === 'PENDING_ELIGIBILITY_CHECK' && (
                 <DecisionRow
-                  label="Eligibility Check"
-                  onApprove={() => runAction('Eligibility approved', () => thesisApi.decideEligibility(thesis.id, true))}
-                  onReject={() => runAction('Eligibility rejected', () => thesisApi.decideEligibility(thesis.id, false))}
+                  label="Проверка на условите"
+                  onApprove={() => runAction('Условите се одобрени', () => thesisApi.decideEligibility(thesis.id, true))}
+                  onReject={() => runAction('Условите се одбиени', () => thesisApi.decideEligibility(thesis.id, false))}
                   loading={actionLoading}
                 />
               )}
@@ -430,9 +472,9 @@ export function ThesisDetailPage() {
               {/* Student: submit application */}
               {isStudent && thesis.status === 'APPLICATION_SUBMITTED' && (
                 <SingleAction
-                  label="Submit Formal Application"
-                  description="Sends the application to the administrative office"
-                  onClick={() => runAction('Application submitted', () => thesisApi.submitApplication(thesis.id))}
+                  label="Поднеси формална пријава"
+                  description="Ја испраќа пријавата до администрацијата"
+                  onClick={() => runAction('Пријавата е поднесена', () => thesisApi.submitApplication(thesis.id))}
                   loading={actionLoading}
                 />
               )}
@@ -442,9 +484,9 @@ export function ThesisDetailPage() {
                 (thesis.status === 'APPLICATION_REJECTED_BY_ARCHIVE' ||
                  thesis.status === 'APPLICATION_REJECTED_BY_SERVICE') && (
                 <SingleAction
-                  label="Resubmit Application"
-                  description="Restart validation. Application will go to Archive first."
-                  onClick={() => runAction('Application resubmitted', () => thesisApi.submitApplication(thesis.id))}
+                  label="Поднеси пријава повторно"
+                  description="Ја рестартира валидацијата. Пријавата прво оди кај Архивата."
+                  onClick={() => runAction('Пријавата е поднесена повторно', () => thesisApi.submitApplication(thesis.id))}
                   loading={actionLoading}
                 />
               )}
@@ -452,8 +494,8 @@ export function ThesisDetailPage() {
               {/* Archive: approve or reject (Step 4a) */}
               {isArchive && thesis.status === 'PENDING_ARCHIVE_VALIDATION' && (
                 <DecisionRow
-                  label="Archive Validation"
-                  onApprove={() => approveValidation('Archive approved', thesisApi.archiveValidate)}
+                  label="Валидација од Архива"
+                  onApprove={() => approveValidation('Архивата одобри', thesisApi.archiveValidate)}
                   onReject={() => setRejectStage('ARCHIVE')}
                   loading={actionLoading}
                 />
@@ -462,8 +504,8 @@ export function ThesisDetailPage() {
               {/* Student Service: approve or reject (Step 4b) */}
               {isAdmin && thesis.status === 'PENDING_SERVICE_VALIDATION' && (
                 <DecisionRow
-                  label="Student Service Validation"
-                  onApprove={() => approveValidation('Service approved', thesisApi.serviceValidate)}
+                  label="Валидација од Студентска служба"
+                  onApprove={() => approveValidation('Студентската служба одобри', thesisApi.serviceValidate)}
                   onReject={() => setRejectStage('SERVICE')}
                   loading={actionLoading}
                 />
@@ -472,9 +514,9 @@ export function ThesisDetailPage() {
               {/* Mentor: approve final */}
               {isMentor && thesis.status === 'FINAL_SUBMITTED' && (
                 <SingleAction
-                  label="Approve Final Thesis"
-                  description="Send to committee for review"
-                  onClick={() => runAction('Final approved', () => thesisApi.approveFinal(thesis.id))}
+                  label="Одобри финална верзија"
+                  description="Испрати до комисија за разгледување"
+                  onClick={() => runAction('Финалната верзија е одобрена', () => thesisApi.approveFinal(thesis.id))}
                   loading={actionLoading}
                 />
               )}
@@ -484,7 +526,7 @@ export function ThesisDetailPage() {
                 <MentorTriDecisionRow
                   loading={actionLoading}
                   onAccept={() =>
-                    runAction('Topic accepted', () => thesisApi.decideMentorRequest(thesis.id, 'ACCEPT'))
+                    runAction('Темата е прифатена', () => thesisApi.decideMentorRequest(thesis.id, 'ACCEPT'))
                   }
                   onRequestChanges={() => setMentorDecision('REQUEST_CHANGES')}
                   onReject={() => setMentorDecision('REJECT')}
@@ -498,19 +540,19 @@ export function ThesisDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-orange-900 dark:text-orange-200 flex items-center gap-1.5">
                         <AlertCircle className="h-4 w-4" />
-                        Mentor requested changes
+                        Менторот побара измени
                         <span className="inline-flex items-center gap-1 rounded-full bg-orange-200/70 px-2 py-0.5 text-[11px] font-semibold text-orange-900 dark:bg-orange-900/50 dark:text-orange-200">
                           <RefreshCw className="h-3 w-3" />
-                          Revision {thesis.revisionCount}
+                          Ревизија {thesis.revisionCount}
                         </span>
                       </p>
                       <p className="text-xs text-orange-800 dark:text-orange-300 mt-0.5">
-                        Revise your title or description, then resubmit to the same mentor
+                        Ревидирајте го насловот или описот, потоа поднесете повторно до истиот ментор
                       </p>
                     </div>
                     <button onClick={() => setReviseOpen(true)} className="btn-primary shrink-0">
                       <RefreshCw className="h-4 w-4" />
-                      Revise &amp; Resubmit
+                      Ревидирај и поднеси повторно
                     </button>
                   </div>
 
@@ -519,7 +561,7 @@ export function ThesisDetailPage() {
                     <div className="mt-3 rounded-md border border-orange-200 bg-white/70 p-3 dark:border-orange-900 dark:bg-orange-950/40">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-orange-700 dark:text-orange-300 flex items-center gap-1.5 mb-1">
                         <MessageSquare className="h-3 w-3" />
-                        Mentor feedback
+                        Повратна информација од менторот
                       </p>
                       <p className="text-sm text-orange-900 dark:text-orange-100 whitespace-pre-wrap">
                         {thesis.mentorComment}
@@ -534,15 +576,15 @@ export function ThesisDetailPage() {
                 <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {thesis.status === 'MENTOR_REJECTED_TOPIC' ? 'Choose Another Mentor' : 'Select Mentor & Topic'}
+                      {thesis.status === 'MENTOR_REJECTED_TOPIC' ? 'Изберете друг ментор' : 'Изберете ментор и тема'}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Pick a mentor and send your topic request
+                      Изберете ментор и испратете го вашето барање за тема
                     </p>
                   </div>
                   <button onClick={() => setMentorPickerOpen(true)} className="btn-primary">
                     <UserPlus className="h-4 w-4" />
-                    Pick Mentor
+                    Избери ментор
                   </button>
                 </div>
               )}
@@ -555,7 +597,7 @@ export function ThesisDetailPage() {
           <div className="card p-6">
             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-4 flex items-center gap-2">
               <History className="h-4 w-4" />
-              Workflow Timeline
+              Временска рамка на процесот
             </h2>
             <Timeline history={history} />
           </div>
@@ -578,7 +620,7 @@ export function ThesisDetailPage() {
       <RejectValidationModal
         open={rejectStage !== null}
         onClose={() => setRejectStage(null)}
-        stageLabel={rejectStage === 'ARCHIVE' ? 'Archive' : 'Student Service'}
+        stageLabel={rejectStage === 'ARCHIVE' ? 'Архива' : 'Студентска служба'}
         submitting={actionLoading}
         onConfirm={confirmReject}
       />
@@ -652,7 +694,7 @@ function SingleAction({
       </div>
       <button onClick={onClick} disabled={loading} className="btn-primary">
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-        Confirm
+        Потврди
       </button>
     </div>
   )
@@ -667,11 +709,11 @@ function DecisionRow({
       <div className="flex gap-2">
         <button onClick={onReject} disabled={loading} className="btn-secondary">
           <XCircle className="h-4 w-4 text-red-500" />
-          Reject
+          Одбиј
         </button>
         <button onClick={onApprove} disabled={loading} className="btn-primary">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-          Approve
+          Одобри
         </button>
       </div>
     </div>
@@ -693,13 +735,13 @@ function MentorTriDecisionRow({
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
       <div>
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Topic Request</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Accept, request changes, or reject</p>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Барање за тема</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Прифатете, побарајте измени, или одбијте</p>
       </div>
       <div className="flex gap-2">
         <button onClick={onReject} disabled={loading} className="btn-secondary">
           <XCircle className="h-4 w-4 text-red-500" />
-          Reject
+          Одбиј
         </button>
         <button
           onClick={onRequestChanges}
@@ -707,11 +749,11 @@ function MentorTriDecisionRow({
           className="inline-flex items-center justify-center gap-2 rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <RefreshCw className="h-4 w-4" />
-          Request Changes
+          Побарај измени
         </button>
         <button onClick={onAccept} disabled={loading} className="btn-primary">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-          Accept
+          Прифати
         </button>
       </div>
     </div>
@@ -720,7 +762,7 @@ function MentorTriDecisionRow({
 
 function Timeline({ history }: { history: ThesisStatusHistory[] }) {
   if (history.length === 0) {
-    return <p className="text-sm text-gray-500 dark:text-gray-400">No history yet</p>
+    return <p className="text-sm text-gray-500 dark:text-gray-400">Сè уште нема историја</p>
   }
 
   return (
@@ -733,7 +775,7 @@ function Timeline({ history }: { history: ThesisStatusHistory[] }) {
             <StatusBadge status={entry.newStatus} />
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {formatDateTime(entry.changedAt)}
-              {entry.changedByName && <> · by {entry.changedByName}</>}
+              {entry.changedByName && <> · од {entry.changedByName}</>}
             </p>
           </div>
         </li>
@@ -754,17 +796,17 @@ function ThesisAccessDenied({ forbidden, onBack }: { forbidden: boolean; onBack:
         className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-600 dark:text-gray-400"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back
+        Назад
       </button>
       <div className="card p-8 text-center">
         <AlertTriangle className="mx-auto h-10 w-10 text-amber-500" />
         <h2 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
-          {forbidden ? 'Access denied' : 'Unable to load this thesis'}
+          {forbidden ? 'Пристапот е одбиен' : 'Не може да се вчита дипломската работа'}
         </h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           {forbidden
-            ? 'You are not authorized to view this thesis. If you believe this is a mistake, contact Student Service.'
-            : 'Something went wrong while loading this thesis. Please try again.'}
+            ? 'Немате дозвола да ја прегледате оваа дипломска работа. Ако сметате дека ова е грешка, контактирајте ја Студентската служба.'
+            : 'Настана грешка при вчитувањето на дипломската работа. Обидете се повторно.'}
         </p>
       </div>
     </div>

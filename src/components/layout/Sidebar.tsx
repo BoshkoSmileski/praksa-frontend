@@ -24,13 +24,13 @@ interface NavItem {
 
 // Single source of truth for navigation. Each role only sees items it's allowed.
 const navItems: NavItem[] = [
-  { label: 'Dashboard',     to: '/dashboard',     icon: LayoutDashboard, roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
-  { label: 'My Theses',     to: '/theses',        icon: FileText,        roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'ARCHIVE'] },
-  { label: 'Committee',     to: '/committee',     icon: Users,           roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
-  { label: 'Defenses',      to: '/defenses',      icon: Calendar,        roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
-  { label: 'Notifications', to: '/notifications', icon: Bell,            roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
-  { label: 'Archive',       to: '/archive',       icon: Archive,         roles: ['STUDENT_SERVICE', 'ARCHIVE'] },
-  { label: 'Student Credits', to: '/students',    icon: Coins,           roles: ['STUDENT_SERVICE'] },
+  { label: 'Контролна табла',      to: '/dashboard',     icon: LayoutDashboard, roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
+  { label: 'Мои дипломски работи', to: '/theses',        icon: FileText,        roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'ARCHIVE'] },
+  { label: 'Комисија',             to: '/committee',     icon: Users,           roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
+  { label: 'Одбрани',              to: '/defenses',      icon: Calendar,        roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
+  { label: 'Известувања',          to: '/notifications', icon: Bell,            roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
+  { label: 'Архива',               to: '/archive',       icon: Archive,         roles: ['STUDENT_SERVICE', 'ARCHIVE'] },
+  { label: 'Кредити на студенти',  to: '/students',      icon: Coins,           roles: ['STUDENT_SERVICE'] },
 ]
 
 export function Sidebar() {
@@ -69,10 +69,10 @@ export function Sidebar() {
         </div>
         <div>
           <p className="text-sm font-bold text-gray-900 dark:text-gray-50">
-            DiplomaSystem
+            Дипломски систем
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Thesis Portal
+            Портал за дипломски работи
           </p>
         </div>
       </div>
@@ -98,7 +98,7 @@ export function Sidebar() {
               <span className="flex-1">{item.label}</span>
               {item.to === '/notifications' && unreadCount > 0 && (
                 <span
-                  title={`${unreadCount} unread`}
+                  title={`${unreadCount} непрочитани`}
                   className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-brand-600 px-1.5 py-0.5 text-xs font-semibold text-white"
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}

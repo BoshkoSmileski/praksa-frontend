@@ -34,7 +34,7 @@ export function RejectValidationModal({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (!comment.trim()) {
-      toast.error('A rejection comment is required')
+      toast.error('Потребен е коментар за причината за одбивање')
       return
     }
     onConfirm(comment.trim())
@@ -44,12 +44,12 @@ export function RejectValidationModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={`Reject Application — ${stageLabel}`}
-      description="The student will see this reason and must resubmit, restarting from Archive validation."
+      title={`Одбиј пријава — ${stageLabel}`}
+      description="Студентот ќе ја види оваа причина и мора да поднесе повторно, почнувајќи од валидација на Архивата."
       footer={
         <>
           <button onClick={onClose} className="btn-secondary" disabled={submitting}>
-            Cancel
+            Откажи
           </button>
           <button
             type="submit"
@@ -58,7 +58,7 @@ export function RejectValidationModal({
             className="inline-flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-            Reject Application
+            Одбиј пријава
           </button>
         </>
       }
@@ -66,7 +66,7 @@ export function RejectValidationModal({
       <form id="reject-validation-form" onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Reason for rejection <span className="text-red-500">*</span>
+            Причина за одбивање <span className="text-red-500">*</span>
           </label>
           <textarea
             rows={4}
@@ -76,10 +76,10 @@ export function RejectValidationModal({
             onChange={(e) => setComment(e.target.value)}
             maxLength={2000}
             className="input-field resize-none"
-            placeholder="Explain what the student needs to correct before resubmitting..."
+            placeholder="Објаснете што треба да поправи студентот пред повторно поднесување..."
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            This note is required and will be shown to the student.
+            Оваа забелешка е задолжителна и ќе биде прикажана на студентот.
           </p>
         </div>
       </form>

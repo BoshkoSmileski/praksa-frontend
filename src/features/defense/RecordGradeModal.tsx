@@ -17,12 +17,18 @@ export function RecordGradeModal({ open, onClose, thesisId, defenseId, onRecorde
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  const isFailing = grade === 5
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
     try {
       await defenseApi.recordResult(thesisId, defenseId, grade, notes.trim() || undefined)
-      toast.success(`Grade ${grade} recorded — thesis archived`)
+      toast.success(
+        isFailing
+          ? 'Внесена е оценка 5 — одбраната не е положена; студентот може повторно да аплицира'
+          : `Внесена е оценка ${grade} — дипломската работа е архивирана`
+      )
       onRecorded()
       onClose()
     } catch {
@@ -36,11 +42,15 @@ export function RecordGradeModal({ open, onClose, thesisId, defenseId, onRecorde
     <Modal
       open={open}
       onClose={onClose}
-      title="Record Defense Grade"
-      description="Recording a grade will archive the thesis."
+      title="Внеси оценка од одбраната"
+      description={
+        isFailing
+          ? 'Оценка 5 значи дека одбраната НЕ е положена — дипломската работа НЕМА да биде архивирана.'
+          : 'Внесувањето оценка од 6-10 ќе ја архивира дипломската работа.'
+      }
       footer={
         <>
-          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button onClick={onClose} className="btn-secondary">Откажи</button>
           <button
             type="submit"
             form="grade-form"
@@ -48,7 +58,7 @@ export function RecordGradeModal({ open, onClose, thesisId, defenseId, onRecorde
             className="btn-primary"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Record Grade
+            Внеси оценка
           </button>
         </>
       }
@@ -56,7 +66,10 @@ export function RecordGradeModal({ open, onClose, thesisId, defenseId, onRecorde
       <form id="grade-form" onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Grade: <span className="text-2xl font-bold text-brand-600">{grade}</span>
+            Оценка:{' '}
+            <span className={`text-2xl font-bold ${isFailing ? 'text-red-600' : 'text-brand-600'}`}>
+              {grade}
+            </span>
           </label>
           <input
             type="range"
@@ -70,17 +83,26 @@ export function RecordGradeModal({ open, onClose, thesisId, defenseId, onRecorde
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             {[5, 6, 7, 8, 9, 10].map((n) => <span key={n}>{n}</span>)}
           </div>
+          {isFailing ? (
+            <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+              5 = Одбраната не е положена (не е положена — дипломската работа нема да биде архивирана)
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              6–10 = успешно одбранета (ја архивира дипломската работа)
+            </p>
+          )}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Notes <span className="text-gray-400 font-normal">(optional)</span>
+            Забелешки <span className="text-gray-400 font-normal">(опционално)</span>
           </label>
           <textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Defense feedback, strengths, etc..."
+            placeholder="Повратна информација од одбраната, силни страни, итн..."
             className="input-field resize-none"
           />
         </div>

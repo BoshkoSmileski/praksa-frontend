@@ -1,20 +1,34 @@
 import { api } from './client'
-import type { ApiResponse, Defense, DefenseResult, Thesis } from '@/types/api'
+import type { ApiResponse, Defense, DefenseRequest, DefenseResult } from '@/types/api'
 
 export const defenseApi = {
-  // POST /api/theses/{thesisId}/defenses/request — STUDENT requests a defense.
-  // Returns the updated thesis (now PENDING_DEFENSE_SCHEDULING). No Defense row yet.
-  request: async (thesisId: string): Promise<Thesis> => {
-    const res = await api.post<ApiResponse<Thesis>>(`/theses/${thesisId}/defenses/request`)
+  // POST /api/theses/{thesisId}/defenses/request — STUDENT proposes the actual room,
+  // date, and time. Stored as a PENDING DefenseRequest — does NOT create a Defense and
+  // does NOT change the thesis status. Awaits a Student Service decision.
+  createRequest: async (thesisId: string, room: string, scheduledAt: string): Promise<DefenseRequest> => {
+    const res = await api.post<ApiResponse<DefenseRequest>>(
+      `/theses/${thesisId}/defenses/request`,
+      { room, scheduledAt }
+    )
     return res.data.data
   },
 
-  // POST /api/theses/{thesisId}/defenses — STUDENT_SERVICE schedules the defense
-  schedule: async (thesisId: string, room: string, scheduledAt: string): Promise<Defense> => {
-    const res = await api.post<ApiResponse<Defense>>(
-      `/theses/${thesisId}/defenses`,
-      { room, scheduledAt }
+  // PATCH /api/theses/{thesisId}/defenses/request/decision — STUDENT_SERVICE approves or
+  // rejects the thesis's current PENDING request. Approval creates the real Defense and
+  // schedules the thesis; the backend re-validates room availability and the date window
+  // against the CURRENT database state (never trust a client-side check).
+  decideRequest: async (thesisId: string, approved: boolean, reason?: string): Promise<DefenseRequest> => {
+    const res = await api.patch<ApiResponse<DefenseRequest>>(
+      `/theses/${thesisId}/defenses/request/decision`,
+      { approved, reason }
     )
+    return res.data.data
+  },
+
+  // GET /api/theses/{thesisId}/defenses/request — full proposal history for this thesis
+  // (current + past rejected/approved), newest first. Thesis-scoped.
+  getRequests: async (thesisId: string): Promise<DefenseRequest[]> => {
+    const res = await api.get<ApiResponse<DefenseRequest[]>>(`/theses/${thesisId}/defenses/request`)
     return res.data.data
   },
 

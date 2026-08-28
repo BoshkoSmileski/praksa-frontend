@@ -30,11 +30,11 @@ export function VersionUploader({ thesisId, onUploaded }: VersionUploaderProps) 
 
     // Client-side validation — server has the same checks
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      toast.error('Only PDF files are allowed')
+      toast.error('Дозволени се само PDF-датотеки')
       return
     }
     if (file.size > 20 * 1024 * 1024) {
-      toast.error('File too large. Maximum is 20 MB')
+      toast.error('Датотеката е преголема. Максимумот е 20 MB')
       return
     }
 
@@ -44,7 +44,7 @@ export function VersionUploader({ thesisId, onUploaded }: VersionUploaderProps) 
 
     try {
       const version = await versionApi.upload(thesisId, file, setProgress)
-      toast.success(`Version ${version.versionNumber} uploaded`)
+      toast.success(`Верзија ${version.versionNumber} е прикачена`)
       onUploaded(version)
     } catch {
       // interceptor toast
@@ -90,7 +90,7 @@ export function VersionUploader({ thesisId, onUploaded }: VersionUploaderProps) 
           <>
             <Loader2 className="h-10 w-10 animate-spin text-brand-600" />
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Uploading {currentFile}...
+              Се прикачува {currentFile}...
             </p>
             <div className="w-full max-w-xs">
               <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
@@ -108,10 +108,10 @@ export function VersionUploader({ thesisId, onUploaded }: VersionUploaderProps) 
           <>
             <UploadCloud className="h-10 w-10 text-gray-400" />
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              <span className="text-brand-600">Click to upload</span> or drag and drop
+              <span className="text-brand-600">Кликнете за прикачување</span> или повлечете и пуштете
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              PDF only · max 20 MB
+              Само PDF · макс. 20 MB
             </p>
           </>
         )}

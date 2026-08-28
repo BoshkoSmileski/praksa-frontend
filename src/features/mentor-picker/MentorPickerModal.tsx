@@ -40,7 +40,7 @@ export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: Ment
     setSubmitting(true)
     try {
       const updated = await thesisApi.submitMentorRequest(thesisId, selectedId, comment.trim() || undefined)
-      toast.success('Mentor request sent')
+      toast.success('Барањето до менторот е испратено')
       onSubmitted(updated)
       onClose()
     } catch {
@@ -54,19 +54,19 @@ export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: Ment
     <Modal
       open={open}
       onClose={onClose}
-      title="Select Mentor"
-      description="Choose a mentor and optionally add a note about your topic idea."
+      title="Изберете ментор"
+      description="Изберете ментор и по желба додадете забелешка за вашата идеја за тема."
       size="lg"
       footer={
         <>
-          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button onClick={onClose} className="btn-secondary">Откажи</button>
           <button
             onClick={handleSubmit}
             disabled={!selectedId || submitting}
             className="btn-primary"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Send Request
+            Испрати барање
           </button>
         </>
       }
@@ -81,7 +81,7 @@ export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: Ment
               <Skeleton className="h-14 w-full" />
             </>
           ) : mentors.length === 0 ? (
-            <p className="text-sm text-gray-500 italic">No mentors available.</p>
+            <p className="text-sm text-gray-500 italic">Нема достапни ментори.</p>
           ) : (
             mentors.map((m) => {
               const isSelected = selectedId === m.id
@@ -122,14 +122,14 @@ export function MentorPickerModal({ open, onClose, thesisId, onSubmitted }: Ment
         {/* Optional comment */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Notes for the mentor <span className="text-gray-400 font-normal">(optional)</span>
+            Забелешки за менторот <span className="text-gray-400 font-normal">(опционално)</span>
           </label>
           <textarea
             rows={3}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="input-field resize-none"
-            placeholder="Briefly describe your topic idea..."
+            placeholder="Опишете ја накратко вашата идеја за тема..."
           />
         </div>
       </div>

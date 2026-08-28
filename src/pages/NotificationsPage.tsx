@@ -12,22 +12,28 @@ import type { Notification } from '@/types/api'
 // Friendly labels for notification types coming from the backend enum.
 // Keeps the UI human-readable without changing the API.
 const typeLabels: Record<string, string> = {
-  ELIGIBILITY_APPROVED: 'Eligibility Approved',
-  ELIGIBILITY_REJECTED: 'Eligibility Rejected',
-  MENTOR_REQUEST_RECEIVED: 'New Mentor Request',
-  MENTOR_ACCEPTED_TOPIC: 'Topic Accepted by Mentor',
-  MENTOR_REJECTED_TOPIC: 'Topic Rejected by Mentor',
-  APPLICATION_VALIDATED: 'Application Validated',
-  FINAL_VERSION_SUBMITTED: 'Final Version Submitted',
-  MENTOR_APPROVED_THESIS: 'Mentor Approved Thesis',
-  COMMITTEE_FORMED: 'Committee Formed',
-  COMMITTEE_REVIEW_ACCEPTED: 'Committee Review Accepted',
-  DEFENSE_ELIGIBILITY_VERIFIED: 'Defense Eligibility Verified',
-  DEFENSE_REQUESTED: 'Defense Requested',
-  DEFENSE_SCHEDULED: 'Defense Scheduled',
-  DEFENSE_CANCELLED: 'Defense Cancelled',
-  THESIS_GRADED: 'Thesis Graded',
-  THESIS_ARCHIVED: 'Thesis Archived',
+  ELIGIBILITY_APPROVED: 'Условите се исполнети',
+  ELIGIBILITY_REJECTED: 'Условите не се исполнети',
+  MENTOR_REQUEST_RECEIVED: 'Ново барање до ментор',
+  MENTOR_ACCEPTED_TOPIC: 'Темата е прифатена од ментор',
+  MENTOR_REJECTED_TOPIC: 'Темата е одбиена од ментор',
+  APPLICATION_VALIDATED: 'Пријавата е валидирана',
+  FINAL_VERSION_SUBMITTED: 'Поднесена финална верзија',
+  MENTOR_APPROVED_THESIS: 'Дипломската работа е одобрена од менторот',
+  COMMITTEE_FORMED: 'Формирана е комисија',
+  COMMITTEE_REVIEW_ACCEPTED: 'Разгледувањето од комисијата е прифатено',
+  DEFENSE_ELIGIBILITY_VERIFIED: 'Условите за одбрана се потврдени',
+  DEFENSE_REQUESTED: 'Предложен термин за одбрана',
+  DEFENSE_REQUEST_REJECTED: 'Предлогот за одбрана е одбиен',
+  DEFENSE_SCHEDULED: 'Одбраната е закажана',
+  DEFENSE_CANCELLED: 'Одбраната е откажана',
+  THESIS_GRADED: 'Дипломската работа е оценета',
+  THESIS_ARCHIVED: 'Дипломската работа е архивирана',
+  DEFENSE_FAILED_CAN_REAPPLY: 'Одбраната не е положена',
+  MENTOR_REVIEW_DEADLINE_EXCEEDED: 'Истечен рок за преглед од менторот',
+  DEADLINE_EXTENSION_REQUESTED: 'Побарано е продолжување на рокот',
+  DEADLINE_EXTENSION_APPROVED: 'Продолжувањето на рокот е одобрено',
+  DEADLINE_EXTENSION_REJECTED: 'Продолжувањето на рокот е одбиено',
 }
 
 export function NotificationsPage() {
@@ -61,8 +67,8 @@ export function NotificationsPage() {
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
       toast.success(
         marked > 0
-          ? `Marked ${marked} notification${marked === 1 ? '' : 's'} as read`
-          : 'No unread notifications'
+          ? `Означени се ${marked} известувањ${marked === 1 ? 'е' : 'а'} како прочитани`
+          : 'Нема непрочитани известувања'
       )
     } finally {
       setMarkingAll(false)
@@ -72,8 +78,8 @@ export function NotificationsPage() {
   return (
     <div>
       <PageHeader
-        title="Notifications"
-        description="Recent system notifications about your theses and tasks"
+        title="Известувања"
+        description="Неодамнешни известувања од системот за вашите дипломски работи и задачи"
         action={
           unreadCount > 0 ? (
             <button
@@ -83,7 +89,7 @@ export function NotificationsPage() {
               className="btn-secondary inline-flex items-center gap-2"
             >
               <CheckCheck className="h-4 w-4" />
-              Mark all as read ({unreadCount})
+              Означи ги сите како прочитани ({unreadCount})
             </button>
           ) : undefined
         }
@@ -107,8 +113,8 @@ export function NotificationsPage() {
         <div className="card">
           <EmptyState
             icon={<BellOff className="h-8 w-8" />}
-            title="No notifications yet"
-            description="You'll see notifications here when something happens with your theses."
+            title="Сè уште нема известувања"
+            description="Овде ќе се прикажуваат известувања кога ќе се случи нешто со вашите дипломски работи."
           />
         </div>
       ) : (
@@ -171,7 +177,7 @@ function NotificationCard({
           <div className="flex items-center gap-2">
             {isUnread && (
               <span
-                title="Unread"
+                title="Непрочитано"
                 className="h-2 w-2 shrink-0 rounded-full bg-brand-500"
               />
             )}
@@ -187,25 +193,25 @@ function NotificationCard({
             </p>
             {notification.sent ? (
               <span
-                title="Email sent"
+                title="Е-поштата е испратена"
                 className="inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400"
               >
                 <CheckCircle className="h-3 w-3" />
-                Sent
+                Испратено
               </span>
             ) : (
               <span
-                title="Email send pending or failed"
+                title="Испраќањето на е-поштата чека или не успеа"
                 className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
               >
                 <XCircle className="h-3 w-3" />
-                Pending
+                На чекање
               </span>
             )}
           </div>
           {notification.thesisTitle && (
             <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400 truncate">
-              Thesis: {notification.thesisTitle}
+              Дипломска работа: {notification.thesisTitle}
             </p>
           )}
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -217,11 +223,11 @@ function NotificationCard({
             type="button"
             onClick={handleClick}
             disabled={busy}
-            title="Mark as read"
+            title="Означи како прочитано"
             className="btn-secondary inline-flex items-center gap-1 self-center whitespace-nowrap px-2.5 py-1.5 text-xs"
           >
             <Check className="h-3.5 w-3.5" />
-            Mark read
+            Означи
           </button>
         )}
       </div>

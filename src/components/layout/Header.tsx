@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { LogOut, User as UserIcon } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { roleLabel } from '@/utils/roleLabels'
 
 export function Header() {
   const { user, logout } = useAuthStore()
@@ -24,7 +25,7 @@ export function Header() {
                 {user.fullName}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {user.role}
+                {roleLabel(user.role)}
               </p>
             </div>
           </div>
@@ -32,10 +33,10 @@ export function Header() {
           <button
             onClick={handleLogout}
             className="btn-secondary"
-            title="Log out"
+            title="Одјава"
           >
             <LogOut className="h-4 w-4" />
-            Logout
+            Одјава
           </button>
         </>
       )}

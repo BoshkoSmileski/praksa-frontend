@@ -5,6 +5,7 @@ import type {
   CreateThesisRequest,
   ThesisStatusHistory,
   MentorDecision,
+  DeadlineExtensionRequest,
 } from '@/types/api'
 
 /**
@@ -131,6 +132,44 @@ export const thesisApi = {
       examsCompleted,
       documentationComplete,
     })
+    return res.data.data
+  },
+
+  // POST /api/theses/{id}/deadline-extension-request — STUDENT (thesis owner) requests an
+  // extension of the defense deadline (up to 15 additional days) with a reason. Creates a
+  // PENDING request — never mutates the deadline directly.
+  requestDeadlineExtension: async (
+    id: string,
+    reason: string,
+    requestedDays: number,
+  ): Promise<DeadlineExtensionRequest> => {
+    const res = await api.post<ApiResponse<DeadlineExtensionRequest>>(
+      `/theses/${id}/deadline-extension-request`,
+      { reason, requestedDays },
+    )
+    return res.data.data
+  },
+
+  // PATCH /api/theses/{id}/deadline-extension-decision — STUDENT_SERVICE approves or rejects
+  // the thesis's current PENDING deadline extension request. Approval extends the deadline by
+  // exactly the requested number of days (server-computed); rejection requires a reason.
+  decideDeadlineExtension: async (
+    id: string,
+    approved: boolean,
+    reason?: string,
+  ): Promise<DeadlineExtensionRequest> => {
+    const res = await api.patch<ApiResponse<DeadlineExtensionRequest>>(
+      `/theses/${id}/deadline-extension-decision`,
+      { approved, reason },
+    )
+    return res.data.data
+  },
+
+  // GET /api/theses/{id}/deadline-extension-requests — full history for this thesis, newest first.
+  getDeadlineExtensionRequests: async (id: string): Promise<DeadlineExtensionRequest[]> => {
+    const res = await api.get<ApiResponse<DeadlineExtensionRequest[]>>(
+      `/theses/${id}/deadline-extension-requests`,
+    )
     return res.data.data
   },
 }

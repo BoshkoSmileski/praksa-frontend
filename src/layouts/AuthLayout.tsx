@@ -15,10 +15,10 @@ export function AuthLayout() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">
-              DiplomaSystem
+              Дипломски систем
             </h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              University thesis management
+              Управување со дипломски работи
             </p>
           </div>
         </div>
@@ -28,7 +28,7 @@ export function AuthLayout() {
         </div>
 
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          © {new Date().getFullYear()} DiplomaSystem
+          © {new Date().getFullYear()} Дипломски систем
         </p>
       </div>
     </div>

@@ -43,10 +43,10 @@ export function ManageCreditsPage() {
   if (user && user.role !== 'STUDENT_SERVICE') {
     return (
       <div>
-        <PageHeader title="Student Credits" />
+        <PageHeader title="Кредити на студенти" />
         <div className="card p-6 flex items-start gap-2 text-sm text-amber-900 dark:text-amber-200">
           <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-          Only Student Service can manage student credits.
+          Само Студентската служба може да управува со кредитите на студентите.
         </div>
       </div>
     )
@@ -79,8 +79,8 @@ export function ManageCreditsPage() {
   return (
     <div>
       <PageHeader
-        title="Student Credits"
-        description="Find a student and record or update their credit balance."
+        title="Кредити на студенти"
+        description="Пронајдете студент и внесете или ажурирајте го неговиот кредитен биланс."
       />
 
       {/* Search — find a student by name, email, or index number (no UUID needed) */}
@@ -91,7 +91,7 @@ export function ManageCreditsPage() {
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search by name, email, or index number..."
+            placeholder="Пребарајте по име, е-пошта или индексен број..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
           />
           {filter && (
@@ -99,7 +99,7 @@ export function ManageCreditsPage() {
               type="button"
               onClick={() => setFilter('')}
               className="rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              title="Clear"
+              title="Исчисти"
             >
               <X className="h-4 w-4" />
             </button>
@@ -113,9 +113,9 @@ export function ManageCreditsPage() {
         <div className="card">
           <EmptyState
             icon={<Users className="h-8 w-8" />}
-            title={filter ? 'No students match your search' : 'No students found'}
+            title={filter ? 'Нема студенти што одговараат на пребарувањето' : 'Не се пронајдени студенти'}
             description={
-              filter ? 'Try a different name, email, or index number.' : 'There are no registered students yet.'
+              filter ? 'Обидете се со друго име, е-пошта или индексен број.' : 'Сè уште нема регистрирани студенти.'
             }
           />
         </div>
@@ -174,18 +174,18 @@ function StudentRow({ student, onEdit }: { student: StudentSummary; onEdit: () =
               }
             >
               <Coins className="h-3 w-3" />
-              {hasCredits ? `${student.credits} credits` : 'No credits recorded'}
+              {hasCredits ? `${student.credits} кредити` : 'Нема внесени кредити'}
             </span>
             {hasCredits && !meetsGate && (
               <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                below {REQUIRED_CREDITS}-credit thesis requirement
+                под потребните {REQUIRED_CREDITS} кредити за дипломска работа
               </span>
             )}
           </div>
         </div>
         <button onClick={onEdit} className="btn-secondary shrink-0">
           <Pencil className="h-4 w-4" />
-          Set Credits
+          Внеси кредити
         </button>
       </div>
     </div>

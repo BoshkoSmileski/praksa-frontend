@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, ArrowRight, MapPin, Clock, Award, XCircle, User as UserIcon, CalendarPlus } from 'lucide-react'
+import { Calendar, ArrowRight, MapPin, Clock, Award, XCircle, User as UserIcon, Hourglass } from 'lucide-react'
 import { thesisApi } from '@/api/thesisApi'
 import { defenseApi } from '@/api/defenseApi'
 import { useAuthStore } from '@/store/authStore'
@@ -9,12 +9,12 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatDateTime } from '@/utils/date'
-import { ScheduleDefenseModal } from '@/features/defense/ScheduleDefenseModal'
 import type { Thesis, Defense, DefenseResult } from '@/types/api'
 
 type DefenseInfo = {
   defense: Defense | null
   result: DefenseResult | null
+  hasPendingRequest: boolean
 }
 
 export function DefensesPage() {
@@ -23,8 +23,6 @@ export function DefensesPage() {
   const [theses, setTheses] = useState<Thesis[]>([])
   const [defenses, setDefenses] = useState<Record<string, DefenseInfo>>({})
   const [loading, setLoading] = useState(true)
-  const [scheduleFor, setScheduleFor] = useState<Thesis | null>(null)
-  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -42,9 +40,18 @@ export function DefensesPage() {
             try {
               const defense = await defenseApi.getActive(t.id)
               const result = defense ? await defenseApi.getResult(t.id, defense.id) : null
-              return [t.id, { defense, result }] as const
+              let hasPendingRequest = false
+              if (!defense && (t.status === 'PENDING_DEFENSE_SCHEDULING' || t.status === 'DEFENSE_SCHEDULED')) {
+                try {
+                  const requests = await defenseApi.getRequests(t.id)
+                  hasPendingRequest = requests.some((r) => r.status === 'PENDING')
+                } catch {
+                  // ignore — badge just won't reflect a pending proposal
+                }
+              }
+              return [t.id, { defense, result, hasPendingRequest }] as const
             } catch {
-              return [t.id, { defense: null, result: null }] as const
+              return [t.id, { defense: null, result: null, hasPendingRequest: false }] as const
             }
           }),
         )
@@ -55,18 +62,18 @@ export function DefensesPage() {
     return () => {
       cancelled = true
     }
-  }, [user?.id, reloadKey])
+  }, [user?.id])
 
   const description =
-    user?.role === 'STUDENT'         ? 'Your upcoming and past defenses' :
-    user?.role === 'MENTOR'          ? 'Defenses for theses you mentor or serve on' :
-    user?.role === 'COMMITTEE'       ? 'Defenses you may grade' :
-    user?.role === 'STUDENT_SERVICE' ? 'All defenses in the system' :
-    'Defense overview'
+    user?.role === 'STUDENT'         ? 'Вашите претстојни и минати одбрани' :
+    user?.role === 'MENTOR'          ? 'Одбрани за дипломски работи каде сте ментор или член на комисија' :
+    user?.role === 'COMMITTEE'       ? 'Одбрани што можете да ги оцените' :
+    user?.role === 'STUDENT_SERVICE' ? 'Сите одбрани во системот' :
+    'Преглед на одбрани'
 
   return (
     <div>
-      <PageHeader title="Defenses" description={description} />
+      <PageHeader title="Одбрани" description={description} />
 
       {loading ? (
         <LoadingList />
@@ -74,8 +81,8 @@ export function DefensesPage() {
         <div className="card">
           <EmptyState
             icon={<Calendar className="h-8 w-8" />}
-            title="No defenses to show"
-            description="Theses become visible here once they reach the defense stage."
+            title="Нема одбрани за прикажување"
+            description="Дипломските работи стануваат видливи тука откако ќе стигнат до фазата на одбрана."
           />
         </div>
       ) : (
@@ -86,22 +93,9 @@ export function DefensesPage() {
               thesis={thesis}
               info={defenses[thesis.id]}
               isService={isService}
-              onSchedule={setScheduleFor}
             />
           ))}
         </div>
-      )}
-
-      {scheduleFor && (
-        <ScheduleDefenseModal
-          open={!!scheduleFor}
-          onClose={() => setScheduleFor(null)}
-          thesisId={scheduleFor.id}
-          onScheduled={() => {
-            setScheduleFor(null)
-            setReloadKey((k) => k + 1)
-          }}
-        />
       )}
     </div>
   )
@@ -113,12 +107,10 @@ function DefenseCard({
   thesis,
   info,
   isService,
-  onSchedule,
 }: {
   thesis: Thesis
   info: DefenseInfo | undefined
   isService: boolean
-  onSchedule: (t: Thesis) => void
 }) {
   const defense = info?.defense ?? null
   const result = info?.result ?? null
@@ -140,23 +132,34 @@ function DefenseCard({
             {defense?.isCancelled && (
               <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-950 dark:text-red-200">
                 <XCircle className="h-3 w-3" />
-                Cancelled
+                Откажана
               </span>
             )}
-            {result && (
+            {result && result.grade === 5 ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950 dark:text-red-200">
+                <Award className="h-3 w-3" />
+                Оценка: {result.grade} — Не положена
+              </span>
+            ) : result ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
                 <Award className="h-3 w-3" />
-                Grade: {result.grade}
+                Оценка: {result.grade}
+              </span>
+            ) : null}
+            {awaitingScheduling && info?.hasPendingRequest && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                <Hourglass className="h-3 w-3" />
+                Чека одобрување
               </span>
             )}
-            {awaitingScheduling && (
+            {awaitingScheduling && !info?.hasPendingRequest && (
               <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-                Eligibility verified — awaiting scheduling
+                Условите се потврдени — сè уште нема предложен термин
               </span>
             )}
             {awaitingEligibility && (
               <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-                Awaiting eligibility check
+                Чека проверка на условите
               </span>
             )}
           </div>
@@ -173,7 +176,7 @@ function DefenseCard({
             {thesis.mentorName && (
               <span className="flex items-center gap-1.5">
                 <span className="text-gray-400">·</span>
-                Mentor: {thesis.mentorName}
+                Ментор: {thesis.mentorName}
               </span>
             )}
           </div>
@@ -181,24 +184,15 @@ function DefenseCard({
           {/* When the thesis is awaiting scheduling, updatedAt is the eligibility-verification time */}
           {awaitingScheduling && (
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              Eligibility verified {formatDateTime(thesis.updatedAt)}
+              Условите се потврдени на {formatDateTime(thesis.updatedAt)}
             </p>
           )}
 
-          {/* STUDENT_SERVICE: schedule the requested defense right from the list */}
-          {isService && awaitingScheduling && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onSchedule(thesis)
-              }}
-              className="btn-primary mt-3"
-            >
-              <CalendarPlus className="h-4 w-4" />
-              Schedule Defense
-            </button>
+          {/* STUDENT_SERVICE: review the proposed term on the thesis detail page */}
+          {isService && awaitingScheduling && info?.hasPendingRequest && (
+            <p className="mt-3 text-xs text-brand-600 dark:text-brand-400">
+              Отворете ја дипломската работа за да го разгледате и одлучите за предложениот термин.
+            </p>
           )}
 
           {defense && (
@@ -209,15 +203,15 @@ function DefenseCard({
               </div>
               <div className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
                 <MapPin className="h-4 w-4 text-gray-400" />
-                Room {defense.room}
+                Просторија {defense.room}
               </div>
             </div>
           )}
 
           {defense?.isCancelled && defense.cancelledByName && (
             <p className="mt-2 text-xs text-red-700 dark:text-red-400">
-              Cancelled by {defense.cancelledByName}
-              {defense.cancelledAt && <> on {formatDateTime(defense.cancelledAt)}</>}
+              Откажана од {defense.cancelledByName}
+              {defense.cancelledAt && <> на {formatDateTime(defense.cancelledAt)}</>}
             </p>
           )}
         </div>

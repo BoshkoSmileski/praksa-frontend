@@ -36,7 +36,7 @@ api.interceptors.response.use(
       const logout = useAuthStore.getState().logout
       if (useAuthStore.getState().token) {
         logout()
-        toast.error('Your session has expired. Please log in again.')
+        toast.error('Сесијата истече. Ве молиме најавете се повторно.')
         // Use hash redirect to avoid React Router import inside a non-component
         if (window.location.pathname !== '/login') {
           window.location.href = '/login'
@@ -48,14 +48,14 @@ api.interceptors.response.use(
       // the read-side IDOR guard). This must NOT destroy the valid session. Surface a
       // resource-level access-denied error and let the calling component decide how to
       // present it (empty/not-authorized state); do not log the user out or redirect.
-      toast.error(backendMessage || 'You do not have access to this resource.')
+      toast.error(backendMessage || 'Немате пристап до овој ресурс.')
     } else if (status && status >= 500) {
-      toast.error('Server error. Please try again later.')
+      toast.error('Грешка на серверот. Обидете се повторно подоцна.')
     } else if (backendMessage) {
       // For 400 errors, surface the backend's helpful message.
       toast.error(backendMessage)
     } else {
-      toast.error('Network error. Check your connection.')
+      toast.error('Мрежна грешка. Проверете ја вашата интернет-врска.')
     }
 
     return Promise.reject(error)

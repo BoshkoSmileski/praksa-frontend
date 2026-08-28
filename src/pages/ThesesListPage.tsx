@@ -45,7 +45,7 @@ export function ThesesListPage() {
         navigate(`/theses/${found.id}`)
         return
       } catch {
-        toast.error(`No thesis found with registration number ${q}`)
+        toast.error(`Не е пронајдена дипломска работа со регистарски број ${q}`)
       }
     }
     // For anything else we just rely on the client-side filter below
@@ -65,18 +65,18 @@ export function ThesesListPage() {
   return (
     <div>
       <PageHeader
-        title="Theses"
+        title="Дипломски работи"
         description={
-          user?.role === 'STUDENT' ? 'Your thesis applications'
-          : user?.role === 'MENTOR' ? 'Theses assigned to you'
-          : user?.role === 'ARCHIVE' ? 'Theses awaiting validation and archived records'
-          : 'All theses in the system'
+          user?.role === 'STUDENT' ? 'Вашите пријави за дипломска работа'
+          : user?.role === 'MENTOR' ? 'Дипломски работи доделени на вас'
+          : user?.role === 'ARCHIVE' ? 'Дипломски работи што чекаат валидација и архивирани записи'
+          : 'Сите дипломски работи во системот'
         }
         action={
           canCreate && (
             <button onClick={() => navigate('/theses/new')} className="btn-primary">
               <Plus className="h-4 w-4" />
-              New Thesis
+              Нова дипломска работа
             </button>
           )
         }
@@ -92,8 +92,8 @@ export function ThesesListPage() {
             onChange={(e) => setFilter(e.target.value)}
             placeholder={
               isArchive
-                ? 'Search by registration number (DT-2026-0001) or title...'
-                : 'Filter by title or registration number...'
+                ? 'Пребарајте по регистарски број (DT-2026-0001) или наслов...'
+                : 'Филтрирај по наслов или регистарски број...'
             }
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
           />
@@ -102,7 +102,7 @@ export function ThesesListPage() {
               type="button"
               onClick={() => setFilter('')}
               className="rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              title="Clear"
+              title="Исчисти"
             >
               <X className="h-4 w-4" />
             </button>
@@ -116,19 +116,19 @@ export function ThesesListPage() {
         <div className="card">
           <EmptyState
             icon={<FileText className="h-8 w-8" />}
-            title={filter ? 'No theses match your filter' : 'No theses yet'}
+            title={filter ? 'Нема дипломски работи што одговараат на филтерот' : 'Сè уште нема дипломски работи'}
             description={
               filter
-                ? 'Try a different search term.'
+                ? 'Обидете се со друг збор за пребарување.'
                 : canCreate
-                ? 'Start your thesis journey by creating your first application.'
-                : 'No theses are currently visible to you.'
+                ? 'Започнете со изработка на дипломска работа со креирање на првата пријава.'
+                : 'Моментално нема достапни дипломски работи за вас.'
             }
             action={
               canCreate && !filter && (
                 <button onClick={() => navigate('/theses/new')} className="btn-primary">
                   <Plus className="h-4 w-4" />
-                  Create Thesis
+                  Креирај дипломска работа
                 </button>
               )
             }
@@ -167,7 +167,7 @@ function ThesisCard({ thesis }: { thesis: Thesis }) {
               </span>
             )}
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              Created {formatDate(thesis.createdAt)}
+              Креирана на {formatDate(thesis.createdAt)}
             </span>
           </div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 truncate group-hover:text-brand-600">
@@ -181,7 +181,7 @@ function ThesisCard({ thesis }: { thesis: Thesis }) {
             {thesis.mentorName && (
               <span className="flex items-center gap-1.5">
                 <span className="text-gray-400">·</span>
-                Mentor: {thesis.mentorName}
+                Ментор: {thesis.mentorName}
               </span>
             )}
           </div>

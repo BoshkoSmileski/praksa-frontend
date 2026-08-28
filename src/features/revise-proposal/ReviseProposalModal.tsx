@@ -41,7 +41,7 @@ export function ReviseProposalModal({
         title.trim(),
         comment.trim() || undefined,
       )
-      toast.success('Proposal resubmitted to mentor')
+      toast.success('Предлогот е повторно поднесен до менторот')
       onSubmitted(updated)
       onClose()
     } catch {
@@ -55,12 +55,12 @@ export function ReviseProposalModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Revise & Resubmit Proposal"
-      description="Edit your title or description, then send to the same mentor."
+      title="Ревидирај и поднеси повторно"
+      description="Уредете го насловот или описот, потоа испратете до истиот ментор."
       size="lg"
       footer={
         <>
-          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button onClick={onClose} className="btn-secondary">Откажи</button>
           <button
             type="submit"
             form="revise-form"
@@ -68,7 +68,7 @@ export function ReviseProposalModal({
             className="btn-primary"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            Resubmit
+            Поднеси повторно
           </button>
         </>
       }
@@ -78,7 +78,7 @@ export function ReviseProposalModal({
         {mentorFeedback && (
           <div className="rounded-lg bg-orange-50 border border-orange-200 p-3 text-sm dark:bg-orange-950/30 dark:border-orange-900">
             <p className="font-medium text-orange-900 dark:text-orange-200 mb-1">
-              Mentor feedback
+              Повратна информација од менторот
             </p>
             <p className="text-orange-800 dark:text-orange-300 whitespace-pre-wrap">
               {mentorFeedback}
@@ -88,7 +88,7 @@ export function ReviseProposalModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Thesis title <span className="text-red-500">*</span>
+            Наслов на дипломската работа <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -103,7 +103,7 @@ export function ReviseProposalModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Idea description <span className="text-gray-400 font-normal">(optional)</span>
+            Опис на идејата <span className="text-gray-400 font-normal">(опционално)</span>
           </label>
           <textarea
             rows={4}
@@ -111,7 +111,7 @@ export function ReviseProposalModal({
             onChange={(e) => setComment(e.target.value)}
             maxLength={2000}
             className="input-field resize-none"
-            placeholder="Address the mentor's feedback..."
+            placeholder="Одговорете на забелешките на менторот..."
           />
         </div>
       </form>

@@ -65,16 +65,16 @@ export function CommitteePage() {
   }, [user?.id])
 
   const description = useMemo(() => {
-    if (user?.role === 'MENTOR') return 'Theses you mentor or serve on as a committee member'
-    if (user?.role === 'STUDENT_SERVICE') return 'Theses in the committee formation and review flow'
-    if (user?.role === 'COMMITTEE') return 'Theses with a scheduled defense you may grade'
-    return 'Committee overview'
+    if (user?.role === 'MENTOR') return 'Дипломски работи каде сте ментор или член на комисијата'
+    if (user?.role === 'STUDENT_SERVICE') return 'Дипломски работи во процес на формирање и разгледување комисија'
+    if (user?.role === 'COMMITTEE') return 'Дипломски работи со закажана одбрана што можете да ги оцените'
+    return 'Преглед на комисии'
   }, [user?.role])
 
   return (
     <div>
       <PageHeader
-        title="Committee"
+        title="Комисија"
         description={description}
       />
 
@@ -84,8 +84,8 @@ export function CommitteePage() {
         <div className="card">
           <EmptyState
             icon={<Users className="h-8 w-8" />}
-            title="Nothing on your committee list"
-            description="When a thesis reaches the committee stage or a defense is scheduled, it will appear here."
+            title="Нема ништо на вашата листа за комисии"
+            description="Кога дипломска работа ќе стигне до фазата на комисија или ќе се закаже одбрана, ќе се прикаже тука."
           />
         </div>
       ) : (
@@ -127,18 +127,18 @@ function CommitteeThesisCard({
             {membership?.isMentorMember && (
               <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-950 dark:text-brand-200">
                 <Star className="h-3 w-3" />
-                Mentor Member
+                Член-ментор
               </span>
             )}
             {membership?.isFormalMember && (
               <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-medium text-violet-800 dark:bg-violet-950 dark:text-violet-200">
                 <Users className="h-3 w-3" />
-                Formal Member
+                Формален член
               </span>
             )}
             {membership?.isFormalMember && thesis.status === 'COMMITTEE_REVIEW' && !membership.hasSubmittedNotes && (
               <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-200">
-                Action needed: submit review
+                Потребна е акција: поднесете забелешки
               </span>
             )}
           </div>
@@ -155,13 +155,13 @@ function CommitteeThesisCard({
             {thesis.mentorName && (
               <span className="flex items-center gap-1.5">
                 <span className="text-gray-400">·</span>
-                Mentor: {thesis.mentorName}
+                Ментор: {thesis.mentorName}
               </span>
             )}
             <span className="flex items-center gap-1.5">
               <span className="text-gray-400">·</span>
-              Committee: {memberCount}/3
-              {memberCount > 0 && <> · {notesSubmitted} note{notesSubmitted === 1 ? '' : 's'}</>}
+              Комисија: {memberCount}
+              {memberCount > 0 && <> · {notesSubmitted} забелешк{notesSubmitted === 1 ? 'а' : 'и'}</>}
             </span>
           </div>
         </div>

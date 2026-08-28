@@ -35,7 +35,9 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
   const myMembership  = members.find((m) => m.professorId === user?.id)
 
   const canPropose       = isMentorOwner && thesis.status === 'MENTOR_APPROVED' && members.length === 0
-  const canApprove       = isAdmin && thesis.status === 'MENTOR_APPROVED' && members.length === 3
+  // Official faculty procedure: a committee is 3 (all voting) or 4 members (3 voting + 1
+  // external non-voting). The backend is authoritative on the exact composition rule.
+  const canApprove       = isAdmin && thesis.status === 'MENTOR_APPROVED' && (members.length === 3 || members.length === 4)
   const canSubmitReview  = !!myMembership && thesis.status === 'COMMITTEE_REVIEW'
   const canAcceptReview  = isAdmin && thesis.status === 'COMMITTEE_REVIEW'
 
@@ -43,7 +45,7 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
     setActionLoading(true)
     try {
       await committeeApi.approve(thesis.id)
-      toast.success('Committee approved')
+      toast.success('Комисијата е одобрена')
       await reload()
       onThesisChange()
     } catch {
@@ -60,7 +62,7 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
       setMembers((prev) => prev.map((m) => (m.id === updated.id ? updated : m)))
       setEditingMemberId(null)
       setNoteDraft('')
-      toast.success('Review submitted')
+      toast.success('Забелешките се поднесени')
     } catch {
       // interceptor
     } finally {
@@ -72,7 +74,7 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
     setActionLoading(true)
     try {
       await committeeApi.acceptReview(thesis.id)
-      toast.success('Committee review accepted')
+      toast.success('Разгледувањето од комисијата е прифатено')
       onThesisChange()
     } catch {
       // interceptor
@@ -86,10 +88,10 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
       <div className="flex items-center justify-between mb-4">
         <h2 className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-gray-50">
           <Users className="h-5 w-5" />
-          Committee
+          Комисија
         </h2>
         <span className="text-xs text-gray-500 dark:text-gray-400">
-          {members.length} / 3 members
+          {members.length} член{members.length === 1 ? '' : 'ови'} (дозволени се 3–4)
         </span>
       </div>
 
@@ -98,19 +100,19 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
         {canPropose && (
           <button onClick={() => setProposeOpen(true)} className="btn-primary">
             <Users className="h-4 w-4" />
-            Propose Committee
+            Предложи комисија
           </button>
         )}
         {canApprove && (
           <button onClick={handleApprove} disabled={actionLoading} className="btn-primary">
             {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-            Approve Committee
+            Одобри комисија
           </button>
         )}
         {canAcceptReview && (
           <button onClick={handleAcceptReview} disabled={actionLoading} className="btn-primary">
             {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-            Accept Committee Review
+            Прифати разгледување од комисија
           </button>
         )}
       </div>
@@ -123,7 +125,7 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
         </div>
       ) : members.length === 0 ? (
         <p className="text-sm text-gray-500 italic dark:text-gray-400">
-          No committee proposed yet
+          Сè уште нема предложена комисија
         </p>
       ) : (
         <div className="space-y-2">
@@ -140,12 +142,17 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{m.professorName}</p>
                       {isMe && (
-                        <span className="text-xs text-brand-600 dark:text-brand-400">(you)</span>
+                        <span className="text-xs text-brand-600 dark:text-brand-400">(вие)</span>
+                      )}
+                      {m.externalNonVoting && (
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                          Надворешен член – без право на оценување
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {m.memberRole === 'MENTOR_MEMBER' ? 'Mentor Member' : 'Formal Member'}
-                      {m.approvedAt && <> · approved {formatDateTime(m.approvedAt)}</>}
+                      {m.memberRole === 'MENTOR_MEMBER' ? 'Член-ментор' : 'Формален член'}
+                      {m.approvedAt && <> · одобрено на {formatDateTime(m.approvedAt)}</>}
                     </p>
                   </div>
                 </div>
@@ -164,15 +171,15 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
                       rows={2}
                       value={noteDraft}
                       onChange={(e) => setNoteDraft(e.target.value)}
-                      placeholder="Your review notes (optional)..."
+                      placeholder="Ваши забелешки од разгледувањето (опционално)..."
                       maxLength={3000}
                       className="input-field resize-none"
                     />
                     <div className="flex gap-2">
-                      <button onClick={() => { setEditingMemberId(null); setNoteDraft('') }} className="btn-secondary">Cancel</button>
+                      <button onClick={() => { setEditingMemberId(null); setNoteDraft('') }} className="btn-secondary">Откажи</button>
                       <button onClick={() => handleSubmitNote(m.id)} disabled={actionLoading} className="btn-primary">
                         {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                        Submit Review
+                        Поднеси забелешки
                       </button>
                     </div>
                   </div>
@@ -184,7 +191,7 @@ export function CommitteeSection({ thesis, onThesisChange }: CommitteeSectionPro
                     onClick={() => { setEditingMemberId(m.id); setNoteDraft(m.notes || '') }}
                     className="mt-2 ml-11 text-xs font-medium text-brand-600 hover:text-brand-700"
                   >
-                    {m.notes ? 'Edit your review' : 'Submit your review →'}
+                    {m.notes ? 'Уреди ги забелешките' : 'Поднеси забелешки →'}
                   </button>
                 )}
               </div>

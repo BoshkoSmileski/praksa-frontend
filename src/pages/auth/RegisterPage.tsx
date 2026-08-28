@@ -34,11 +34,11 @@ export function RegisterPage() {
 
     // Lightweight client-side validation (the backend is still authoritative).
     if (!fullName.trim() || !email.trim() || !password || !indexNumber.trim()) {
-      toast.error('Please fill in all fields.')
+      toast.error('Ве молиме пополнете ги сите полиња.')
       return
     }
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters.')
+      toast.error('Лозинката мора да содржи најмалку 8 карактери.')
       return
     }
 
@@ -51,7 +51,7 @@ export function RegisterPage() {
         role: 'STUDENT', // public registration is students only
         indexNumber: indexNumber.trim(),
       })
-      toast.success('Account created! Please sign in.')
+      toast.success('Сметката е креирана! Ве молиме најавете се.')
       navigate('/login', { replace: true })
     } catch {
       // Error toast (duplicate email/index, validation, server) already shown
@@ -65,17 +65,17 @@ export function RegisterPage() {
     <div>
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-          Create your account
+          Креирајте своја сметка
         </h2>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Register as a student to get started
+          Регистрирајте се како студент за да започнете
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Full name
+            Име и презиме
           </label>
           <div className="relative mt-1">
             <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -86,7 +86,7 @@ export function RegisterPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="input-field pl-9"
-              placeholder="Jane Student"
+              placeholder="Име Презиме"
               autoComplete="name"
             />
           </div>
@@ -94,7 +94,7 @@ export function RegisterPage() {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email
+            Е-пошта
           </label>
           <div className="relative mt-1">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -105,7 +105,7 @@ export function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input-field pl-9"
-              placeholder="you@university.edu"
+              placeholder="vasa.posta@univerzitet.edu"
               autoComplete="email"
             />
           </div>
@@ -113,7 +113,7 @@ export function RegisterPage() {
 
         <div>
           <label htmlFor="indexNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Student index
+            Студентски индекс
           </label>
           <div className="relative mt-1">
             <Hash className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -132,7 +132,7 @@ export function RegisterPage() {
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Password
+            Лозинка
           </label>
           <div className="relative mt-1">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -149,26 +149,26 @@ export function RegisterPage() {
             />
           </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            At least 8 characters.
+            Најмалку 8 карактери.
           </p>
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {loading ? 'Creating account...' : 'Create account'}
+          {loading ? 'Креирање сметка...' : 'Креирај сметка'}
         </button>
       </form>
 
       <div className="mt-4 rounded-lg bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-        Public registration is for <span className="font-medium">students</span> only.
-        Mentor, student-service, committee, and archive accounts are created by the
-        faculty administration.
+        Јавната регистрација е наменета само за <span className="font-medium">студенти</span>.
+        Сметките за ментори, студентска служба, комисија и архива се креираат од
+        страна на факултетската администрација.
       </div>
 
       <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-        Already have an account?{' '}
+        Веќе имате сметка?{' '}
         <Link to="/login" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">
-          Sign in
+          Најавете се
         </Link>
       </p>
     </div>

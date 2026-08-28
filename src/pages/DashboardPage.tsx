@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { FileText, ArrowRight, Bell, Users, Calendar, Coins } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { roleLabel } from '@/utils/roleLabels'
 import type { Role } from '@/types/api'
 
 interface QuickAction {
@@ -13,11 +14,11 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
-  { to: '/theses',        title: 'View Theses',          description: 'See all your theses and their current status', icon: FileText, roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'ARCHIVE'] },
-  { to: '/notifications', title: 'Notifications',        description: 'Recent system notifications',                  icon: Bell,     roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
-  { to: '/committee',     title: 'Committee Management', description: 'Review thesis defense committees',             icon: Users,    roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
-  { to: '/defenses',      title: 'Defense Scheduling',   description: 'Schedule, cancel or attend a defense',         icon: Calendar, roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
-  { to: '/students',      title: 'Student Credits',      description: 'Record or update student credit balances',      icon: Coins,    roles: ['STUDENT_SERVICE'] },
+  { to: '/theses',        title: 'Дипломски работи',       description: 'Прегледајте ги сите ваши дипломски работи и нивниот тековен статус', icon: FileText, roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'ARCHIVE'] },
+  { to: '/notifications', title: 'Известувања',            description: 'Неодамнешни известувања од системот',                                 icon: Bell,     roles: ['STUDENT', 'MENTOR', 'STUDENT_SERVICE', 'COMMITTEE', 'ARCHIVE'] },
+  { to: '/committee',     title: 'Управување со комисии',  description: 'Прегледајте ги комисиите за одбрана на дипломски работи',              icon: Users,    roles: ['MENTOR', 'STUDENT_SERVICE', 'COMMITTEE'] },
+  { to: '/defenses',      title: 'Закажување одбрани',     description: 'Закажете, откажете или присуствувајте на одбрана',                     icon: Calendar, roles: ['STUDENT', 'MENTOR', 'COMMITTEE', 'STUDENT_SERVICE'] },
+  { to: '/students',      title: 'Кредити на студенти',    description: 'Внесете или ажурирајте ги кредитите на студентите',                    icon: Coins,    roles: ['STUDENT_SERVICE'] },
 ]
 
 export function DashboardPage() {
@@ -29,8 +30,8 @@ export function DashboardPage() {
   return (
     <div>
       <PageHeader
-        title={`Welcome back, ${user.fullName.split(' ')[0]}`}
-        description={`Signed in as ${user.role}`}
+        title={`Добредојдовте, ${user.fullName.split(' ')[0]}`}
+        description={`Најавени сте како ${roleLabel(user.role)}`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2">

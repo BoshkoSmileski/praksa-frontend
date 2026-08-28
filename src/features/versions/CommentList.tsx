@@ -4,6 +4,7 @@ import { versionApi } from '@/api/versionApi'
 import { useAuthStore } from '@/store/authStore'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { formatDateTime } from '@/utils/date'
+import { roleLabel } from '@/utils/roleLabels'
 import { cn } from '@/utils/cn'
 import type { ThesisComment } from '@/types/api'
 
@@ -56,7 +57,7 @@ export function CommentList({ thesisId, versionId, canComment = true }: CommentL
       ) : comments.length === 0 ? (
         <p className="flex items-center gap-2 text-sm text-gray-500 italic dark:text-gray-400">
           <MessageSquare className="h-4 w-4" />
-          No comments yet
+          Сè уште нема коментари
         </p>
       ) : (
         comments.map((c) => {
@@ -76,7 +77,7 @@ export function CommentList({ thesisId, versionId, canComment = true }: CommentL
                   {c.authorName}
                 </p>
                 <span className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  {c.authorRole}
+                  {roleLabel(c.authorRole)}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-gray-500 ml-auto">
                   {formatDateTime(c.createdAt)}
@@ -97,7 +98,7 @@ export function CommentList({ thesisId, versionId, canComment = true }: CommentL
             rows={2}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Add a comment..."
+            placeholder="Додадете коментар..."
             maxLength={2000}
             className="input-field resize-none"
           />
@@ -105,7 +106,7 @@ export function CommentList({ thesisId, versionId, canComment = true }: CommentL
             type="submit"
             disabled={!content.trim() || submitting}
             className="btn-primary"
-            title="Send"
+            title="Испрати"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />

@@ -36,7 +36,7 @@ export function CreateThesisPage() {
         title: title.trim(),
         studentComment: studentComment.trim() || undefined,
       })
-      toast.success('Thesis created — eligibility check requested')
+      toast.success('Дипломската работа е креирана — побарана е проверка на условите')
       navigate(`/theses/${thesis.id}`)
     } catch {
       // Interceptor toast
@@ -52,30 +52,30 @@ export function CreateThesisPage() {
         className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to theses
+        Назад кон дипломски работи
       </button>
 
       <PageHeader
-        title="Create New Thesis"
-        description="Submit your thesis title to request the eligibility check."
+        title="Нова дипломска работа"
+        description="Поднесете го насловот на дипломската работа за да побарате проверка на условите."
       />
 
       {/* Credit status — usability hint; the backend enforces the 200-credit gate */}
       {creditsLoaded && (
         eligible ? (
           <div className="mb-4 rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-900 dark:bg-green-950 dark:border-green-900 dark:text-green-200">
-            You have <span className="font-semibold">{credits}</span> credits — you meet the {REQUIRED_CREDITS}-credit
-            requirement to submit a thesis application.
+            Имате <span className="font-semibold">{credits}</span> кредити — ги исполнувате условите од {REQUIRED_CREDITS}{' '}
+            кредити за поднесување пријава за дипломска работа.
           </div>
         ) : (
           <div className="mb-4 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:border-amber-900 dark:text-amber-200">
             <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium">You cannot submit a thesis application yet.</p>
+              <p className="font-medium">Сè уште не можете да поднесете пријава за дипломска работа.</p>
               <p className="mt-1">
-                At least {REQUIRED_CREDITS} credits are required. You currently have{' '}
-                <span className="font-semibold">{credits ?? 'no recorded'}</span> credits. Contact Student Service to
-                have your credits recorded or updated.
+                Потребни се најмалку {REQUIRED_CREDITS} кредити. Моментално имате{' '}
+                <span className="font-semibold">{credits ?? 'ненаведени'}</span> кредити. Контактирајте ја Студентската служба за
+                да ги внесе или ажурира вашите кредити.
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export function CreateThesisPage() {
       <form onSubmit={handleSubmit} className="card p-6 space-y-5">
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Thesis Title <span className="text-red-500">*</span>
+            Наслов на дипломската работа <span className="text-red-500">*</span>
           </label>
           <input
             id="title"
@@ -96,16 +96,16 @@ export function CreateThesisPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="input-field"
-            placeholder="e.g. Machine Learning Approaches to Image Recognition"
+            placeholder="пр. Пристапи на машинско учење за препознавање слики"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Between 5 and 255 characters
+            Помеѓу 5 и 255 карактери
           </p>
         </div>
 
         <div>
           <label htmlFor="comment" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Notes <span className="text-gray-400 font-normal">(optional)</span>
+            Забелешки <span className="text-gray-400 font-normal">(опционално)</span>
           </label>
           <textarea
             id="comment"
@@ -113,7 +113,7 @@ export function CreateThesisPage() {
             value={studentComment}
             onChange={(e) => setStudentComment(e.target.value)}
             className="input-field resize-none"
-            placeholder="Add a short description of your idea..."
+            placeholder="Додадете краток опис на вашата идеја..."
           />
         </div>
 
@@ -123,25 +123,25 @@ export function CreateThesisPage() {
             onClick={() => navigate('/theses')}
             className="btn-secondary"
           >
-            Cancel
+            Откажи
           </button>
           <button
             type="submit"
             disabled={submitting || (creditsLoaded && !eligible)}
-            title={creditsLoaded && !eligible ? `At least ${REQUIRED_CREDITS} credits are required` : undefined}
+            title={creditsLoaded && !eligible ? `Потребни се најмалку ${REQUIRED_CREDITS} кредити` : undefined}
             className="btn-primary"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {submitting ? 'Creating...' : 'Create Thesis'}
+            {submitting ? 'Креирање...' : 'Креирај дипломска работа'}
           </button>
         </div>
       </form>
 
       <div className="mt-4 rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm text-blue-900 dark:bg-blue-950 dark:border-blue-900 dark:text-blue-200">
-        <p className="font-medium">What happens next?</p>
+        <p className="font-medium">Што следува?</p>
         <p className="mt-1 text-blue-800 dark:text-blue-300">
-          The student service will review your eligibility request (must have at least 200 credits).
-          Once approved, you'll be able to select a mentor and topic.
+          Студентската служба ќе го разгледа вашето барање за проверка на условите (потребни се најмалку 200 кредити).
+          Откако ќе биде одобрено, ќе можете да изберете ментор и тема.
         </p>
       </div>
     </div>

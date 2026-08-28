@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Loader2, User, CheckCircle } from 'lucide-react'
+import { Loader2, User, CheckCircle, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Modal } from '@/components/ui/Modal'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -23,11 +23,17 @@ export function ProposeCommitteeModal({
   const [mentors, setMentors] = useState<MentorSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  // Official faculty procedure: a 4-member committee (3 voting + 1 external non-voting
+  // professional from practice) is optional — default is the existing 3-member committee.
+  const [includeExternal, setIncludeExternal] = useState(false)
+  const [externalId, setExternalId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (!open) return
     setSelectedIds([])
+    setIncludeExternal(false)
+    setExternalId(null)
     setLoading(true)
     userApi
       .getMentors()
@@ -42,17 +48,31 @@ export function ProposeCommitteeModal({
       prev.includes(id)
         ? prev.filter((x) => x !== id)
         : prev.length >= 2
-        ? prev  // hard cap at 2 — backend also enforces this
+        ? prev  // hard cap at 2 voting members — backend also enforces this
         : [...prev, id]
     )
+    // A professor cannot be both a voting member and the external member.
+    if (externalId === id) setExternalId(null)
   }
 
+  const toggleIncludeExternal = () => {
+    setIncludeExternal((prev) => {
+      if (prev) setExternalId(null) // turning the option off clears any selection
+      return !prev
+    })
+  }
+
+  const externalCandidates = mentors.filter((m) => !selectedIds.includes(m.id))
+  const canSubmit =
+    selectedIds.length === 2 && (!includeExternal || externalId !== null)
+
   const handleSubmit = async () => {
-    if (selectedIds.length !== 2) return
+    if (!canSubmit) return
     setSubmitting(true)
     try {
-      await committeeApi.propose(thesisId, selectedIds)
-      toast.success('Committee proposed')
+      const professorIds = includeExternal && externalId ? [...selectedIds, externalId] : selectedIds
+      await committeeApi.propose(thesisId, professorIds, includeExternal ? externalId ?? undefined : undefined)
+      toast.success('Комисијата е предложена')
       onProposed()
       onClose()
     } catch {
@@ -66,40 +86,40 @@ export function ProposeCommitteeModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Propose Committee"
-      description="Select exactly 2 additional professors. You are automatically the third member."
+      title="Предложи комисија"
+      description="Изберете точно 2 дополнителни професори со право на глас. Вие автоматски сте третиот (гласачки) член."
       size="lg"
       footer={
         <>
-          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button onClick={onClose} className="btn-secondary">Откажи</button>
           <button
             onClick={handleSubmit}
-            disabled={selectedIds.length !== 2 || submitting}
+            disabled={!canSubmit || submitting}
             className="btn-primary"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Propose Committee
+            Предложи комисија
           </button>
         </>
       }
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="rounded-md bg-blue-50 border border-blue-200 p-3 text-xs text-blue-900 dark:bg-blue-950 dark:border-blue-900 dark:text-blue-200">
-          Selected: <strong>{selectedIds.length} / 2</strong>
+          Избрани членови со право на глас: <strong>{selectedIds.length} / 2</strong>
         </div>
 
-        <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+        <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
           {loading ? (
             <>
               <Skeleton className="h-14 w-full" />
               <Skeleton className="h-14 w-full" />
             </>
           ) : mentors.length === 0 ? (
-            <p className="text-sm text-gray-500 italic">No other professors available.</p>
+            <p className="text-sm text-gray-500 italic">Нема достапни други професори.</p>
           ) : (
             mentors.map((m) => {
               const isSelected = selectedIds.includes(m.id)
-              const isDisabled = !isSelected && selectedIds.length >= 2
+              const isDisabled = (!isSelected && selectedIds.length >= 2) || externalId === m.id
               return (
                 <button
                   key={m.id}
@@ -130,6 +150,43 @@ export function ProposeCommitteeModal({
                 </button>
               )
             })
+          )}
+        </div>
+
+        {/* Optional external non-voting member — official faculty procedure, max 1 */}
+        <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+            <input
+              type="checkbox"
+              checked={includeExternal}
+              onChange={toggleIncludeExternal}
+              className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+            />
+            <UserPlus className="h-4 w-4" />
+            Додади надворешен член без право на глас (опционално)
+          </label>
+          <p className="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+            Надворешен член – без право на оценување. Надворешен професионалец од праксата може
+            да се приклучи на комисијата и да учествува во разгледувањето, но никогаш не може да внесе оценка за одбрана.
+          </p>
+
+          {includeExternal && (
+            <div className="mt-3 ml-6">
+              {externalCandidates.length === 0 ? (
+                <p className="text-xs text-gray-500 italic">Нема достапни други професори.</p>
+              ) : (
+                <select
+                  value={externalId ?? ''}
+                  onChange={(e) => setExternalId(e.target.value || null)}
+                  className="input-field"
+                >
+                  <option value="">Изберете го надворешниот член…</option>
+                  {externalCandidates.map((m) => (
+                    <option key={m.id} value={m.id}>{m.fullName}</option>
+                  ))}
+                </select>
+              )}
+            </div>
           )}
         </div>
       </div>

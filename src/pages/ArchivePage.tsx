@@ -49,7 +49,7 @@ export function ArchivePage() {
         navigate(`/theses/${found.id}`)
         return
       } catch {
-        toast.error(`No thesis found with registration number ${q}`)
+        toast.error(`Не е пронајдена дипломска работа со регистарски број ${q}`)
       }
     }
   }
@@ -57,8 +57,8 @@ export function ArchivePage() {
   return (
     <div>
       <PageHeader
-        title="Archive"
-        description="Validation queue and archived thesis records"
+        title="Архива"
+        description="Редица за валидација и архивирани записи на дипломски работи"
       />
 
       <form onSubmit={handleRegistrationSearch} className="card p-3 mb-4 flex items-center gap-2">
@@ -67,7 +67,7 @@ export function ArchivePage() {
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Search by registration number (DT-2026-0001), title, or student..."
+          placeholder="Пребарајте по регистарски број (DT-2026-0001), наслов или студент..."
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
         />
         {filter && (
@@ -75,7 +75,7 @@ export function ArchivePage() {
             type="button"
             onClick={() => setFilter('')}
             className="rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-            title="Clear"
+            title="Исчисти"
           >
             <X className="h-4 w-4" />
           </button>
@@ -90,16 +90,16 @@ export function ArchivePage() {
           <section>
             <SectionHeader
               icon={<Inbox className="h-5 w-5" />}
-              title="Pending Validation"
+              title="Чека валидација"
               count={pending.length}
-              hint="Applications awaiting your archive review"
+              hint="Пријави што чекаат ваш преглед за архивирање"
             />
             {pending.length === 0 ? (
               <div className="card">
                 <EmptyState
                   icon={<FileCheck className="h-8 w-8" />}
-                  title="Nothing in the queue"
-                  description="New applications will appear here for archive validation."
+                  title="Нема ништо во редицата"
+                  description="Новите пријави ќе се прикажат тука за валидација од Архивата."
                 />
               </div>
             ) : (
@@ -115,16 +115,16 @@ export function ArchivePage() {
           <section>
             <SectionHeader
               icon={<Archive className="h-5 w-5" />}
-              title="Archived Records"
+              title="Архивирани записи"
               count={archived.length}
-              hint="Defended and archived theses"
+              hint="Одбранети и архивирани дипломски работи"
             />
             {archived.length === 0 ? (
               <div className="card">
                 <EmptyState
                   icon={<Archive className="h-8 w-8" />}
-                  title="No archived theses yet"
-                  description={filter ? 'Try a different search term.' : 'Archived records appear here after a defense is graded.'}
+                  title="Сè уште нема архивирани дипломски работи"
+                  description={filter ? 'Обидете се со друг збор за пребарување.' : 'Архивираните записи се прикажуваат тука откако ќе биде оценета одбраната.'}
                 />
               </div>
             ) : (
@@ -177,7 +177,7 @@ function PendingCard({ thesis }: { thesis: Thesis }) {
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <StatusBadge status={thesis.status} />
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              Submitted {formatDate(thesis.updatedAt)}
+              Поднесено на {formatDate(thesis.updatedAt)}
             </span>
           </div>
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 truncate group-hover:text-brand-600">
@@ -191,7 +191,7 @@ function PendingCard({ thesis }: { thesis: Thesis }) {
             {thesis.mentorName && (
               <span className="flex items-center gap-1.5">
                 <span className="text-gray-400">·</span>
-                Mentor: {thesis.mentorName}
+                Ментор: {thesis.mentorName}
               </span>
             )}
           </div>
@@ -220,7 +220,7 @@ function ArchivedCard({ thesis }: { thesis: Thesis }) {
             )}
             {thesis.archiveDate && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                Archived {formatDateTime(thesis.archiveDate)}
+                Архивирано на {formatDateTime(thesis.archiveDate)}
               </span>
             )}
           </div>
@@ -235,13 +235,13 @@ function ArchivedCard({ thesis }: { thesis: Thesis }) {
             {thesis.mentorName && (
               <span className="flex items-center gap-1.5">
                 <span className="text-gray-400">·</span>
-                Mentor: {thesis.mentorName}
+                Ментор: {thesis.mentorName}
               </span>
             )}
             {thesis.archivedByName && (
               <span className="flex items-center gap-1.5">
                 <span className="text-gray-400">·</span>
-                Archived by: {thesis.archivedByName}
+                Архивирано од: {thesis.archivedByName}
               </span>
             )}
           </div>

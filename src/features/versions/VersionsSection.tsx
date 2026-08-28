@@ -66,7 +66,7 @@ export function VersionsSection({ thesis, onThesisChange }: VersionsSectionProps
       // Refresh both the version list (other version's isFinal may have changed) and parent thesis
       const fresh = await versionApi.list(thesis.id)
       setVersions(fresh)
-      toast.success(`Version ${version.versionNumber} marked as final`)
+      toast.success(`Верзија ${version.versionNumber} е означена како финална`)
       onThesisChange?.()
     } catch {
       // interceptor
@@ -79,10 +79,10 @@ export function VersionsSection({ thesis, onThesisChange }: VersionsSectionProps
     <div className="card p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50">
-          Thesis Versions
+          Верзии на дипломската работа
         </h2>
         <span className="text-xs text-gray-500 dark:text-gray-400">
-          {versions.length} {versions.length === 1 ? 'version' : 'versions'}
+          {versions.length} {versions.length === 1 ? 'верзија' : 'верзии'}
         </span>
       </div>
 
@@ -99,8 +99,8 @@ export function VersionsSection({ thesis, onThesisChange }: VersionsSectionProps
         </div>
       ) : versions.length === 0 ? (
         <p className="text-sm text-gray-500 italic dark:text-gray-400">
-          No versions uploaded yet
-          {canUpload && ' — upload your first PDF above'}
+          Сè уште нема прикачени верзии
+          {canUpload && ' — прикачете ја вашата прва PDF-датотека погоре'}
         </p>
       ) : (
         <div className="space-y-2">
@@ -124,17 +124,17 @@ export function VersionsSection({ thesis, onThesisChange }: VersionsSectionProps
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        Version {v.versionNumber}
+                        Верзија {v.versionNumber}
                       </p>
                       {v.isFinal && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:ring-emerald-900">
                           <Star className="h-3 w-3" />
-                          Final
+                          Финална
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Uploaded {formatDateTime(v.uploadedAt)}
+                      Прикачена на {formatDateTime(v.uploadedAt)}
                     </p>
                   </div>
 
@@ -144,28 +144,28 @@ export function VersionsSection({ thesis, onThesisChange }: VersionsSectionProps
                         onClick={() => handleMarkFinal(v)}
                         disabled={markingFinalId === v.id}
                         className="btn-secondary"
-                        title="Mark this version as the final submission"
+                        title="Означи ја оваа верзија како финална пријава"
                       >
                         {markingFinalId === v.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
                           <Star className="h-3.5 w-3.5" />
                         )}
-                        Mark Final
+                        Означи финална
                       </button>
                     )}
                     <button
                       onClick={() => handleDownload(v)}
                       className="btn-secondary"
-                      title="Download PDF"
+                      title="Преземи PDF"
                     >
                       <Download className="h-3.5 w-3.5" />
-                      Download
+                      Преземи
                     </button>
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : v.id)}
                       className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      title="Show comments"
+                      title="Прикажи коментари"
                     >
                       <ChevronDown
                         className={cn('h-4 w-4 transition-transform', isExpanded && 'rotate-180')}

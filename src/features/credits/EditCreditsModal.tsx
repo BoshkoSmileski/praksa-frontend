@@ -45,7 +45,7 @@ export function EditCreditsModal({ open, onClose, student, onUpdated }: EditCred
     setSubmitting(true)
     try {
       const updated = await userApi.updateCredits(student.id, parsed)
-      toast.success(`Credits for ${updated.fullName} set to ${updated.credits}`)
+      toast.success(`Кредитите за ${updated.fullName} се поставени на ${updated.credits}`)
       onUpdated(updated)
       onClose()
     } catch {
@@ -59,11 +59,11 @@ export function EditCreditsModal({ open, onClose, student, onUpdated }: EditCred
     <Modal
       open={open}
       onClose={onClose}
-      title="Set Student Credits"
-      description="This sets the student's total credit balance (it does not add to it)."
+      title="Внеси кредити на студент"
+      description="Ова го поставува вкупниот кредитен биланс на студентот (не се додава на постојниот)."
       footer={
         <>
-          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button onClick={onClose} className="btn-secondary">Откажи</button>
           <button
             type="submit"
             form="edit-credits-form"
@@ -71,7 +71,7 @@ export function EditCreditsModal({ open, onClose, student, onUpdated }: EditCred
             className="btn-primary"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Save Credits
+            Зачувај кредити
           </button>
         </>
       }
@@ -95,16 +95,16 @@ export function EditCreditsModal({ open, onClose, student, onUpdated }: EditCred
             )}
           </div>
           <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Current balance:{' '}
+            Тековен биланс:{' '}
             <span className="font-semibold text-gray-700 dark:text-gray-300">
-              {student.credits != null ? student.credits : 'not recorded'}
+              {student.credits != null ? student.credits : 'ненаведено'}
             </span>
           </p>
         </div>
 
         <div>
           <label htmlFor="credits" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            New credit balance <span className="text-red-500">*</span>
+            Нов кредитен биланс <span className="text-red-500">*</span>
           </label>
           <input
             id="credits"
@@ -115,11 +115,11 @@ export function EditCreditsModal({ open, onClose, student, onUpdated }: EditCred
             value={value}
             onChange={(e) => setValue(e.target.value)}
             className="input-field"
-            placeholder="e.g. 200"
+            placeholder="пр. 200"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Whole number, 0 or greater. At least 200 credits are required for a student
-            to submit a thesis application.
+            Цел број, 0 или поголем. Потребни се најмалку 200 кредити за студентот
+            да поднесе пријава за дипломска работа.
           </p>
         </div>
       </form>

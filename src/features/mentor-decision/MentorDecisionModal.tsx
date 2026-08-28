@@ -38,7 +38,7 @@ export function MentorDecisionModal({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (commentMissing) {
-      toast.error('A comment is required when requesting changes')
+      toast.error('Потребен е коментар кога се бараат измени')
       return
     }
     onConfirm(comment.trim())
@@ -48,16 +48,16 @@ export function MentorDecisionModal({
     <Modal
       open={mode !== null}
       onClose={onClose}
-      title={isRequestChanges ? 'Request Changes' : 'Reject Topic'}
+      title={isRequestChanges ? 'Побарај измени' : 'Одбиј тема'}
       description={
         isRequestChanges
-          ? 'Tell the student what to change. They will revise and resubmit to you.'
-          : 'Optionally explain why the topic is rejected. The student will pick a different topic or mentor.'
+          ? 'Кажете му на студентот што треба да смени. Тој ќе ја ревидира и повторно ќе ја поднесе до вас.'
+          : 'По желба објаснете зошто темата се одбива. Студентот ќе избере друга тема или ментор.'
       }
       footer={
         <>
           <button onClick={onClose} className="btn-secondary" disabled={submitting}>
-            Cancel
+            Откажи
           </button>
           {isRequestChanges ? (
             <button
@@ -67,7 +67,7 @@ export function MentorDecisionModal({
               className="inline-flex items-center justify-center gap-2 rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              Request Changes
+              Побарај измени
             </button>
           ) : (
             <button
@@ -77,7 +77,7 @@ export function MentorDecisionModal({
               className="inline-flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-              Reject Topic
+              Одбиј тема
             </button>
           )}
         </>
@@ -86,10 +86,10 @@ export function MentorDecisionModal({
       <form id="mentor-decision-form" onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            {isRequestChanges ? 'What needs to change' : 'Reason for rejection'}
+            {isRequestChanges ? 'Што треба да се промени' : 'Причина за одбивање'}
             {isRequestChanges
               ? <span className="text-red-500"> *</span>
-              : <span className="text-gray-400 font-normal"> (optional)</span>}
+              : <span className="text-gray-400 font-normal"> (опционално)</span>}
           </label>
           <textarea
             rows={4}
@@ -101,14 +101,14 @@ export function MentorDecisionModal({
             className="input-field resize-none"
             placeholder={
               isRequestChanges
-                ? 'Explain what the student should refine in the proposed topic...'
-                : 'Optionally explain why this topic cannot be supervised...'
+                ? 'Објаснете што треба да прецизира студентот во предложената тема...'
+                : 'По желба објаснете зошто оваа тема не може да се менторира...'
             }
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {isRequestChanges
-              ? 'This note is required and will be shown to the student.'
-              : 'This note will be shown to the student.'}
+              ? 'Оваа забелешка е задолжителна и ќе биде прикажана на студентот.'
+              : 'Оваа забелешка ќе биде прикажана на студентот.'}
           </p>
         </div>
       </form>

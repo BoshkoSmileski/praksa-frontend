@@ -36,6 +36,7 @@ export type ThesisStatus =
   | 'PENDING_DEFENSE_CHECK'
   | 'PENDING_DEFENSE_SCHEDULING'
   | 'DEFENSE_SCHEDULED'
+  | 'DEFENSE_FAILED'
   | 'ARCHIVED'
 
 export type MemberRole = 'MENTOR_MEMBER' | 'FORMAL_MEMBER'
@@ -131,6 +132,11 @@ export interface Thesis {
   archiveComment: string | null
   serviceComment: string | null
   submissionDeadline: string | null
+  applicationSubmittedAt: string | null
+  // Deadline by which the student must complete the defense process, once Student Service
+  // has verified defense eligibility (stamped at that point, +1 month). Extendable by up to
+  // 15 additional days via a DeadlineExtensionRequest. Null until eligibility is verified.
+  defenseDeadline: string | null
   createdAt: string
   updatedAt: string
 
@@ -197,6 +203,12 @@ export interface CommitteeMember {
   approvedById: string | null
   approvedAt: string | null
   notes: string | null
+  // Official faculty procedure: a 4-member committee may include ONE external professional
+  // from practice — a genuine committee member who is NON-VOTING (cannot record a defense
+  // grade). Wire key verified empirically (CommitteeMemberResponseSerializationTest) — Jackson
+  // serializes the isExternalNonVoting() getter with the "is" prefix stripped, same as
+  // isSent -> "sent" / isRead -> "read" elsewhere in this project.
+  externalNonVoting: boolean
 }
 
 // -----------------------------------------------------------------------------
@@ -213,6 +225,49 @@ export interface Defense {
   cancelledByName: string | null
   cancelledAt: string | null
   createdAt: string
+}
+
+export type DefenseRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+// A student-proposed defense room/date/time, awaiting Student Service review. Distinct
+// from `Defense` (the actual scheduled event) — only an APPROVED request produces one.
+export interface DefenseRequest {
+  id: string
+  thesisId: string
+  room: string
+  scheduledAt: string
+  status: DefenseRequestStatus
+  reason: string | null
+  createdAt: string
+  decidedAt: string | null
+  requestedById: string | null
+  requestedByName: string | null
+  decidedById: string | null
+  decidedByName: string | null
+}
+
+export type DeadlineExtensionStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+// Official faculty procedure: a student may request an extension of the defense deadline
+// (Thesis.defenseDeadline), for a maximum of 15 additional days, with a written reason.
+// Submitting a request never mutates the deadline directly — only an APPROVED decision does,
+// by exactly `requestedDays`. Distinct from DefenseRequest (a different administrative
+// sub-process entirely).
+export interface DeadlineExtensionRequest {
+  id: string
+  thesisId: string
+  reason: string
+  requestedDays: number
+  status: DeadlineExtensionStatus
+  decisionReason: string | null
+  previousDeadline: string | null
+  newDeadline: string | null
+  createdAt: string
+  decidedAt: string | null
+  requestedById: string | null
+  requestedByName: string | null
+  decidedById: string | null
+  decidedByName: string | null
 }
 
 export interface DefenseResult {

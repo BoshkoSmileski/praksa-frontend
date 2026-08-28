@@ -9,10 +9,16 @@ export const committeeApi = {
   },
 
   // POST /api/theses/{thesisId}/committee/propose
-  propose: async (thesisId: string, professorIds: string[]): Promise<CommitteeMember[]> => {
+  // externalProfessorId: only meaningful when professorIds has 3 entries — marks exactly one
+  // of them as the external non-voting member (official faculty procedure, up to 4 members).
+  propose: async (
+    thesisId: string,
+    professorIds: string[],
+    externalProfessorId?: string
+  ): Promise<CommitteeMember[]> => {
     const res = await api.post<ApiResponse<CommitteeMember[]>>(
       `/theses/${thesisId}/committee/propose`,
-      { professorIds }
+      { professorIds, externalProfessorId }
     )
     return res.data.data
   },
