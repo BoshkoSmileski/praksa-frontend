@@ -5,21 +5,9 @@ import { toast } from 'sonner'
 import { authApi } from '@/api/authApi'
 
 /**
- * Public self-registration page.
- *
- * Security note: public self-registration is intentionally limited to the
- * STUDENT role. Privileged accounts (MENTOR, STUDENT_SERVICE, COMMITTEE,
- * ARCHIVE) are provisioned through administrative/seed mechanisms, never
- * through this public form, so no role selector is exposed here and the
- * request always sends role = 'STUDENT'.
- *
- * The backend is the security boundary: as of the BUG-2 / P0.2 fix,
- * AuthServiceImpl.register ignores any requested role and always creates a
- * STUDENT, so a direct API call cannot escalate privilege either. This form
- * omitting the role selector is a UX choice on top of that enforcement.
- *
- * On success we do NOT auto-authenticate; we show a confirmation and send the
- * user to /login, matching the project's existing login-first auth flow.
+ * Public student registration page.
+ * Staff accounts are created outside this form, so only the student role is allowed here.
+ * The backend still enforces the final role, but this UI keeps the flow simple and safe.
  */
 export function RegisterPage() {
   const [fullName, setFullName] = useState('')
