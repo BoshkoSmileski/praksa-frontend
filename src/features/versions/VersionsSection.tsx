@@ -34,8 +34,7 @@ export function VersionsSection({ thesis, onThesisChange }: VersionsSectionProps
   const isAssignedMentor = user?.role === 'MENTOR' && thesis.mentorId === user.id
   const canUpload = isStudentOwner && (thesis.status === 'IN_PROGRESS' || thesis.status === 'FINAL_SUBMITTED')
   const canMarkFinal = isStudentOwner && thesis.status === 'IN_PROGRESS'
-  // Backend only accepts comments from the student-owner or assigned mentor;
-  // mirror that here to avoid showing an input that would always error.
+  // Only the student owner or the assigned mentor can comment.
   const canComment = isStudentOwner || isAssignedMentor
 
   const handleUploaded = (version: ThesisVersion) => {

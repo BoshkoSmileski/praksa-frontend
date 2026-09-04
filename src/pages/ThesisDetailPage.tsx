@@ -32,11 +32,11 @@ export function ThesisDetailPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [mentorPickerOpen, setMentorPickerOpen] = useState(false)
   const [reviseOpen, setReviseOpen] = useState(false)
-  // Which validation stage is being rejected (opens the rejection-comment modal). Null = closed.
+  // The validation stage being rejected. Null means the modal is closed.
   const [rejectStage, setRejectStage] = useState<null | 'ARCHIVE' | 'SERVICE'>(null)
-  // Which mentor decision is collecting a comment (opens the mentor-decision modal). Null = closed.
+  // The mentor decision currently being collected. Null means the modal is closed.
   const [mentorDecision, setMentorDecision] = useState<MentorDecisionMode | null>(null)
-  // P2.2 — ARCHIVE-only inline editor for the archive notes on an archived thesis.
+  // Archive-only inline editor for archived thesis notes.
   const [editingArchiveNotes, setEditingArchiveNotes] = useState(false)
   const [archiveNotesDraft, setArchiveNotesDraft] = useState('')
 
@@ -394,7 +394,7 @@ export function ThesisDetailPage() {
         )}
       </div>
 
-      {/* Helper closures so we don't repeat the refresh logic */}
+      {/* Shared refresh helper for the thesis and its timeline */}
       {(() => {
         const refresh = async () => {
           const fresh = await thesisApi.getById(thesis.id)
