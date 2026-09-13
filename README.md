@@ -1,80 +1,88 @@
-# Diploma Thesis Management — Frontend
+# Дигитализиран процес за пријава и одбрана на дипломска работа — Фронтенд
 
-Modern React + TypeScript frontend for the Diploma Thesis Management backend.
+Фронтенд (веб-интерфејс) за системот за управување со дипломски работи.
 
-Stack: **React 19 / Vite / TypeScript / Tailwind CSS / Zustand / Axios / React Router**.
+**Технологии:** React 19 · TypeScript · Vite · Tailwind CSS · Zustand · Axios · React Router.
 
-## Features
+> Ова е фронтенд делот. Бекендот (Java · Spring Boot · PostgreSQL) и целосната документација се во
+> складиштето [`praksa`](https://github.com/BoshkoSmileski/praksa)
+> (видете [`docs/DOKUMENTACIJA.md`](https://github.com/BoshkoSmileski/praksa/blob/main/docs/DOKUMENTACIJA.md)).
 
-- JWT login with persistent session
-- Role-based sidebar (Student / Mentor / Admin / Committee / Archive)
-- Thesis list + create + detail with workflow timeline
-- Mentor picker modal
-- PDF drag-and-drop upload with progress
-- Versions list + comments per version
-- Committee proposal + approval flow
-- Defense scheduling, cancellation, grade recording
-- Notification history
-- Toast notifications + loading skeletons
+## Функционалности
 
-## Prerequisites
+- Најава со JWT и зачувана сесија; целиот интерфејс е на **македонски (кирилица)**.
+- Странична навигација според улога (Студент / Ментор / Студентска служба / Комисија / Архива).
+- Листа, создавање и детален приказ на дипломска работа со временска линија на статусите.
+- Избор ментор, ревизија на предлог, менторска одлука.
+- Прикачување PDF-верзии и коментари по верзија; означување финална верзија.
+- Формирање и одобрување комисија (3 или 4 членови, надворешен член без право на глас).
+- Предлагање и одобрување/одбивање термин за одбрана; откажување; внесување оценка.
+- Барање за продолжување на рокот.
+- Историја на известувања со прочитано/непрочитано и бројач.
 
-- **Node.js 20+** ([nodejs.org](https://nodejs.org))
-- The backend running on `localhost:8080`
+## Предуслови
 
-## Setup
+- **Node.js 20+**
+- Бекендот да работи на `http://localhost:8080`
+
+## Стартување
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open **http://localhost:5173**.
+Отворете **http://localhost:5173**. Vite ги проследува `/api/*` барањата кон `http://localhost:8080`
+(во `vite.config.ts`), па не е потребна дополнителна CORS поставка во развој.
 
-Vite proxies `/api/*` to `http://localhost:8080` (configured in `vite.config.ts`), so no CORS setup is needed.
+## Демо-сметки
 
-## Test accounts
+Лозинка за сите: **`password123`**
 
-All passwords: **`password123`**
-
-| Role | Email |
+| Улога | Е-пошта |
 |---|---|
-| STUDENT | `student@test.com` |
-| MENTOR | `mentor@test.com`, `mentor2@test.com`, `mentor3@test.com` |
-| ADMIN | `admin@test.com` |
-| COMMITTEE | `committee@test.com` |
-| ARCHIVE | `archive@test.com` |
+| STUDENT (Студент) | `student@test.com` |
+| MENTOR (Ментор) | `mentor@test.com`, `mentor2@test.com`, `mentor3@test.com` |
+| STUDENT_SERVICE (Студентска служба) | `service@test.com` |
+| COMMITTEE (Комисија) | `committee@test.com` |
+| ARCHIVE (Архива) | `archive@test.com` |
 
-## Project structure
+## Структура на проектот
 
 ```
 src/
-├── api/            # Axios client + per-domain services
+├── api/            # Axios клиент + сервиси по домен
 ├── components/
-│   ├── layout/     # Sidebar, Header
+│   ├── layout/     # странична лента, заглавие
 │   └── ui/         # Modal, Skeleton, StatusBadge, EmptyState, PageHeader
-├── features/       # Feature folders (mentor-picker, versions, committee, defense)
+├── features/       # модули по функционалност (ментор, верзии, комисија, одбрана, продолжување рок…)
 ├── layouts/        # AuthLayout, AppLayout
-├── pages/          # Route-level pages
+├── pages/          # страници по рута
 ├── routes/         # AppRouter + ProtectedRoute
-├── store/          # Zustand stores (auth)
-├── types/          # TS mirrors of backend DTOs
-└── utils/          # cn(), date formatting
+├── store/          # Zustand состојба (автентикација)
+├── types/          # TypeScript типови што ги отсликуваат DTO-ата
+└── utils/          # cn(), формат на датум, ознаки за улоги
 ```
 
-## Architecture highlights
+## Клучни архитектонски одлуки
 
-- **Path alias `@/`** — `@/components/Modal` instead of `../../../components/Modal`
-- **Zustand `persist`** — auth token + user survive page refresh
-- **Axios interceptors** — JWT auto-attached, 401/403 handled globally
-- **Vertical slicing** — each `features/<name>/` folder owns its data, state, modals
+- **Псевдоним на патека `@/`** — `@/components/Modal` наместо релативни патеки.
+- **Zustand `persist`** — токенот и корисникот преживуваат освежување на страницата.
+- **Axios интерцептори** — JWT автоматски се додава; 401/403 се обработуваат централно (автоматска одјава).
+- **Вертикално сечење** — секоја папка `features/<име>/` ги содржи своите податоци, состојба и модали.
 
-## Build for production
+## Градба за продукција
 
 ```bash
 npm run build
 ```
 
-## License
+## Автор / дипломски проект
 
-MIT — academic project.
+Дел од дипломска работа на **Факултетот за електротехника и информациски технологии (ФЕИТ)**,
+**Универзитет „Св. Кирил и Методиј“ во Скопје (УКИМ)**.
+
+- **Студент:** ______________________________
+- **Индекс:** ______________________________
+- **Ментор:** ______________________________
+- **Академска година:** ______________________________
